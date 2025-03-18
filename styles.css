@@ -1,0 +1,545 @@
+@font-face {
+    font-family: 'Helvetica Bold';
+    src: url('fonts/Gotham-Bold.otf') format('opentype');
+    font-weight: bold;
+    font-style: normal;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #ff70a6; /* Orangish pink color */
+    font-family: 'Helvetica Bold', Arial, sans-serif;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+}
+
+.container {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+/* Rectangle that appears above the text */
+.disappearing-rectangle {
+    position: fixed; /* Fixed to viewport */
+    top: 0; /* Start from the very top of the viewport */
+    left: 0;
+    width: 100%;
+    height: calc(50vh + 300px); /* Height to cover both half the viewport plus the maximum move-up distance */
+    background-color: inherit; /* Will inherit from body */
+    z-index: 10;
+}
+
+/* Digits for final animation */
+.digit {
+    display: inline-block;
+    position: relative;
+    z-index: 5; /* Lower than the rectangle */
+}
+
+/* Animation for the digits moving up */
+.move-up {
+    transform: translateY(-300px); /* Use absolute value to ensure enough movement */
+    transition: transform 1.2s ease;
+}
+
+.number {
+    font-size: 15vw; /* Responsive text size */
+    color: rgb(255, 223, 81);
+    font-family: 'Helvetica Bold', Arial, sans-serif;
+    font-weight: bold;
+    letter-spacing: -0.05em; /* Tighter letter spacing */
+    position: relative;
+    display: inline-block;
+}
+
+.credit {
+    position: absolute;
+    bottom: 5vh; /* Position slightly above the bottom */
+    font-size: 2vmin; /* Responsive text size */
+    color: rgb(255, 223, 81);
+    font-family: 'Helvetica Bold', Arial, sans-serif;
+    letter-spacing: -0.02em; /* Slightly tighter letter spacing */
+}
+
+/* Remove the container::before pseudo-element as we're using a real element now */
+.container::before {
+    display: none;
+}
+
+/* Stacking rectangles animation */
+.stacking-rectangle {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 100%; /* Ensure full height */
+    top: 0; /* Position from top */
+    transform: translateY(-100%); /* Start above the viewport */
+    transition: transform 1.2s cubic-bezier(0.25, 1, 0.5, 1); /* Smooth deceleration effect */
+    display: flex;
+    align-items: center;
+    margin: 0 !important; /* Remove any margin */
+    padding: 0 !important; /* Remove any padding */
+    border: none !important; /* Remove any border */
+    box-sizing: border-box;
+}
+
+/* Three distinct rectangle colors that will repeat */
+.stacking-rectangle:nth-of-type(3n+1) {
+    background-color: #ff9770; /* Orange */
+    z-index: 30; /* Higher z-index for first rectangle */
+}
+
+.stacking-rectangle:nth-of-type(3n+2) {
+    background-color: #70a6ff; /* Blue */
+    z-index: 29; /* Middle z-index */
+}
+
+.stacking-rectangle:nth-of-type(3n+3) {
+    background-color: #e9ff70; /* Light green */
+    z-index: 28; /* Lower z-index */
+}
+
+/* First rectangle specifically */
+.stacking-rectangle:first-child {
+    background-color: #ff9770 !important; /* Force orange for first rectangle */
+    z-index: 32 !important; /* Highest z-index */
+}
+
+/* Animation class to make rectangles slide down */
+.slide-down {
+    transform: translateY(0) !important; /* Ensure full movement with !important */
+}
+
+/* Container for stacking rectangles */
+.stacking-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    z-index: 15; /* Higher than other elements */
+    display: none; /* Initially hidden */
+    overflow: hidden; /* Prevent scrollbars */
+}
+
+/* Scrolling text styling */
+.scrolling-text-container {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    pointer-events: none; /* Allow clicks to pass through */
+}
+
+/* Marquee content for seamless looping */
+.marquee-content {
+    display: flex;
+    height: 100%;
+    align-items: center; /* Center text vertically */
+    position: absolute;
+    white-space: nowrap;
+    will-change: transform; /* Performance optimization for smooth animation */
+    animation: none; /* Remove any conflicting animations */
+    width: 50%; /* Each copy takes half the wrapper width */
+    flex-shrink: 0;
+    padding: 0; /* Remove padding to prevent uneven spacing */
+}
+
+/* Individual text spans */
+.marquee-text {
+    display: inline-flex;
+    align-items: center; /* Center text vertically */
+    justify-content: center;
+    font-family: 'Helvetica Bold', Arial, sans-serif;
+    font-weight: bold;
+    color: white;
+    line-height: 1;
+    white-space: nowrap;
+    text-transform: uppercase;
+    height: auto;
+    margin-right: 0.1em;
+}
+
+/* Animation for seamless right-to-left scrolling */
+.scroll-right-to-left {
+    animation: marqueeRTL 60s linear infinite;
+}
+
+/* Animation for seamless left-to-right scrolling */
+.scroll-left-to-right {
+    animation: marqueeLTR 60s linear infinite;
+}
+
+/* Keyframes for right-to-left continuous scrolling */
+@keyframes marqueeRTL {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-100%);
+    }
+}
+
+/* Keyframes for left-to-right continuous scrolling */
+@keyframes marqueeLTR {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(0);
+    }
+}
+
+/* Base styling for scrolling text */
+.scrolling-text {
+    font-family: 'Helvetica Bold', Arial, sans-serif;
+    font-weight: bold;
+    color: white;
+    white-space: nowrap;
+    position: absolute;
+    width: max-content;
+    height: 100%;
+    display: flex;
+    align-items: center; /* Center vertically instead of flex-end */
+    box-sizing: border-box;
+    line-height: 1; /* Ensure line height is exact */
+    text-transform: uppercase; /* Ensure all uppercase */
+    will-change: transform; /* Performance optimization */
+    
+    /* Default position */
+    left: 0;
+}
+
+/* Text sizing based on content to fit the stripe height perfectly */
+.scrolling-text:contains('HAPPY') {
+    font-size: 92%; /* Adjusted for HAPPY */
+}
+
+.scrolling-text:contains('BIRTHDAY') {
+    font-size: 90%; /* Adjusted for BIRTHDAY - slightly smaller due to ascenders */
+}
+
+.scrolling-text:contains('DAD') {
+    font-size: 92%; /* Adjusted for DAD */
+}
+
+/* For browsers that don't support :contains, fallback to the JS-added classes */
+.stacking-rectangle .scrolling-text {
+    font-size: unset; /* Remove conflicting font size */
+}
+
+/* Specific stripe-based adjustments */
+.stacking-rectangle {
+    display: flex;
+    align-items: center;
+}
+
+/* Apply specific font sizing based on rectangle height */
+.stacking-rectangle:nth-of-type(3n+1) .scrolling-text {
+    height: 100%;
+    font-size: 100%; /* Full height for orange stripes */
+}
+
+.stacking-rectangle:nth-of-type(3n+2) .scrolling-text {
+    height: 100%;
+    font-size: 100%; /* Full height for blue stripes */
+}
+
+.stacking-rectangle:nth-of-type(3n+3) .scrolling-text {
+    height: 100%;
+    font-size: 100%; /* Full height for green stripes */
+}
+
+/* Animation for right-to-left scrolling */
+.scroll-right-to-left {
+    animation: scrollRightToLeft linear infinite;
+    /* Duration is set in JS for consistent speed */
+}
+
+/* Animation for left-to-right scrolling */
+.scroll-left-to-right {
+    animation: scrollLeftToRight linear infinite;
+    /* Duration is set in JS for consistent speed */
+}
+
+@keyframes scrollRightToLeft {
+    0% {
+        transform: translateX(100%);
+    }
+    100% {
+        transform: translateX(-100%);
+    }
+}
+
+@keyframes scrollLeftToRight {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+@keyframes marquee-right {
+    0% { transform: translate3d(0, 0, 0); }
+    100% { transform: translate3d(-100%, 0, 0); }
+}
+
+@keyframes marquee-left {
+    0% { transform: translate3d(-100%, 0, 0); }
+    100% { transform: translate3d(0, 0, 0); }
+}
+
+/* Media queries for font sizing */
+@media (max-width: 768px) {
+    .content {
+        animation-duration: 18s;
+    }
+}
+
+@media (max-width: 480px) {
+    .content {
+        animation-duration: 15s;
+    }
+}
+
+.text-scroller {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+}
+
+.text-track {
+    display: flex;
+    white-space: nowrap;
+    will-change: transform;
+    animation-duration: 30s;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+}
+
+.rtl .text-track {
+    animation-name: scroll-text-rtl;
+}
+
+.ltr .text-track {
+    animation-name: scroll-text-ltr;
+}
+
+.scroll-text {
+    display: inline-block;
+    font-family: 'Helvetica Bold', Arial, sans-serif;
+    font-weight: bold;
+    color: white;
+    text-transform: uppercase;
+}
+
+@keyframes scroll-text-rtl {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+}
+
+@keyframes scroll-text-ltr {
+    from { transform: translateX(-50%); }
+    to { transform: translateX(0); }
+}
+
+/* Clean up all existing marquee/scrolling text styles */
+.scrolling-text-container, .marquee-content {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Add to styles.css */
+.marquee-wrapper {
+    position: absolute;
+    width: 200%; /* Double width to fit two copies */
+    height: 100%;
+    display: flex;
+    align-items: center; /* Center content vertically */
+    overflow: hidden;
+}
+
+.marquee-content {
+    width: 50%; /* Each copy takes half the wrapper width */
+    flex-shrink: 0;
+    display: flex;
+    white-space: nowrap;
+    padding: 0; /* Remove padding to prevent uneven spacing */
+}
+
+
+.marquee-content:has(.marquee-text:contains("BIRTHDAY")) {
+    letter-spacing: 0.05em; /* Increase spacing for BIRTHDAY to prevent overlap */
+}
+*/
+
+.scroll-rtl {
+    animation: scroll-rtl 25s linear infinite;
+}
+
+.scroll-ltr {
+    animation: scroll-ltr 25s linear infinite;
+}
+
+@keyframes scroll-rtl {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%); /* Move exactly one copy width */
+    }
+}
+
+@keyframes scroll-ltr {
+    0% {
+        transform: translateX(-50%); /* Start from negative position */
+    }
+    100% {
+        transform: translateX(0);
+    }
+}
+
+/* Individual text items */
+.marquee-text, .marquee-space {
+    display: inline-flex;
+    align-items: center; /* Center text vertically */
+    justify-content: center;
+    font-family: 'Helvetica Bold', Arial, sans-serif;
+    font-weight: bold;
+    color: white;
+    line-height: 1;
+    white-space: nowrap;
+    text-transform: uppercase;
+    height: auto; /* Fix missing semicolon */
+    margin-right: 0.1em; /* Add slight spacing between repeated words */
+}
+
+
+.marquee-text:contains("BIRTHDAY") {
+    margin-right: 1em; /* Ensure spacing after BIRTHDAY */
+    transform: scale(0.95); /* Slightly reduce size to prevent overlap */
+}
+*/
+
+/* Scrolling text styling - cleaned up version */
+.scrolling-text-container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+}
+
+.marquee {
+    width: 100%;
+    overflow: hidden;
+}
+
+.track {
+    white-space: nowrap;
+}
+
+.content {
+    display: inline-block;
+    padding-right: 100%; /* Create spacing between iterations */
+    animation: marquee 25s linear infinite;
+}
+
+.marquee[direction="right"] .content {
+    animation-name: marquee-right;
+}
+
+.marquee[direction="left"] .content {
+    animation-name: marquee-left;
+}
+
+.word {
+    font-family: 'Helvetica Bold', Arial, sans-serif;
+    font-weight: bold;
+    color: white;
+    text-transform: uppercase;
+    margin-right: 1em; /* Space between words */
+}
+
+/* Base styling for scrolling text */
+.scrolling-text {
+    font-family: 'Helvetica Bold', Arial, sans-serif;
+    font-weight: bold;
+    color: white;
+    white-space: nowrap;
+    position: absolute;
+    width: max-content;
+    height: 100%;
+    display: flex;
+    align-items: center; /* Center vertically instead of flex-end */
+    box-sizing: border-box;
+    line-height: 1;
+    text-transform: uppercase;
+    will-change: transform;
+    
+    /* Default position */
+    left: 0;
+}
+
+/* Remove all duplicate/conflicting animation keyframes and use only these */
+@keyframes scrollRightToLeft {
+    from {
+        transform: translateX(100%);
+    }
+    to {
+        transform: translateX(-100%);
+    }
+}
+
+@keyframes scrollLeftToRight {
+    from {
+        transform: translateX(-100%);
+    }
+    to {
+        transform: translateX(100%);
+    }
+}
+
+/* Fix small gaps between colored stripes by adjusting positions slightly */
+.stacking-rectangle:nth-of-type(n+2) {
+    margin-top: -2px !important; /* Increased overlap to prevent gaps */
+}
+
+/* Special fix for first and second stripe gap - increased overlap */
+.stacking-rectangle:nth-of-type(2) {
+    margin-top: -6px !important; /* Maximize overlap for first and second stripe */
+}
+
+/* Fix small gaps between colored stripes by adjusting positions slightly */
+.stacking-rectangle:nth-of-type(n+2) {
+    margin-top: -2px !important; /* Increased overlap to prevent gaps */
+}
+
+/* Special fix for first and second stripe gap */
+.stacking-rectangle:nth-of-type(2) {
+    margin-top: -6px !important; /* Maximize overlap for first and second stripe */
+}

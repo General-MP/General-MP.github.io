@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Number One</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="number" id="number">1</div>
+        <div class="credit">Created by MP</div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const numberElement = document.getElementById('number');
+            const creditElement = document.querySelector('.credit');
+            const body = document.body;
+            const container = document.querySelector('.container');
+            let counter = 1;
+            const maxCount = 51;
+            const countSpeed = 100; // milliseconds between count increments
+
+            // Apply color changes in a synchronous way using requestAnimationFrame
+            function applyColorScheme(bgColor, textColor) {
+                requestAnimationFrame(() => {
+                    body.style.backgroundColor = bgColor;
+                    numberElement.style.color = textColor;
+                    creditElement.style.color = textColor;
+                });
+            }
+
+            function performFinalAnimation() {
+                // Split the "51" into separate digits
+                const currentColor = window.getComputedStyle(numberElement).color;
+                numberElement.innerHTML = '<span class="digit five">5</span><span class="digit one">1</span>';
+                
+                // Get references to the individual digits
+                const five = document.querySelector('.five');
+                const one = document.querySelector('.one');
+                
+                // Create and position the rectangle
+                const rectangle = document.createElement('div');
+                rectangle.className = 'disappearing-rectangle';
+                
+                // Calculate rectangle position based on text position
+                const numberRect = numberElement.getBoundingClientRect();
+                
+                // Get the maximum move-up distance based on screen size
+                let moveUpDistance = 300; // Default
+                if (window.innerWidth <= 768) moveUpDistance = 200;
+                if (window.innerWidth <= 480) moveUpDistance = 150;
+                
+                // Position rectangle bottom edge slightly above the text
+                // The margin between text and rectangle bottom
+                const margin = 20;
+                
+                // Set rectangle's bottom edge to be slightly above the text
+                // and calculate its height to extend from there to the top of the page
+                const rectangleBottom = numberRect.top - margin;
+                const rectangleHeight = rectangleBottom;
+                
+                rectangle.style.top = '0';
+                rectangle.style.height = rectangleHeight + 'px';
+                rectangle.style.backgroundColor = window.getComputedStyle(body).backgroundColor;
+                
+                // Add the rectangle to body
+                document.body.appendChild(rectangle);
+                
+                // Apply the final animation
+                setTimeout(() => {
+                    // Move the "5" behind the rectangle
+                    five.classList.add('move-up');
+                    
+                    setTimeout(() => {
+                        // Move the "1" behind the rectangle
+                        one.classList.add('move-up');
+                        
+                        // After both digits move behind rectangle
+                        setTimeout(() => {
+                            // Hide digits and rectangle
+                            numberElement.style.display = 'none';
+                            rectangle.style.display = 'none';
+                            
+                            // Fade out credit text
+                            creditElement.style.opacity = '0';
+                            creditElement.style.transition = 'opacity 0.5s ease';
+                            
+                            // Wait until ALL elements have disappeared before starting stacking rectangles
+                            setTimeout(createStackingRectangles, 1000);
+                            
+                        }, 1500); // Wait for move-up animation to complete
+                        
+                    }, 200); // Slight delay before the "1" moves
+                }, 500);
+            }
+
+            function updateCount() {
+                counter++;
+                numberElement.textContent = counter;
+
+                // Change colors at specific thresholds
+                if (counter === 15) {
+                    applyColorScheme('#ffff00', '#000000'); // yellow bg, black text
+                }
+                else if (counter === 30) {
+                    applyColorScheme('#800080', '#ffff00'); // purple bg, yellow text
+                }
+
+                if (counter < maxCount) {
+                    setTimeout(updateCount, countSpeed);
+                } else if (counter === maxCount) {
+                    // When we reach 51, perform the final animation
+                    setTimeout(performFinalAnimation, 500);
+                }
+            }
+
+            // Start the animation after a short delay
+            setTimeout(updateCount, 1000);
+        });
+    </script>
+    <script src="script.js"></script>
+</body>
+</html>
