@@ -394,7 +394,6 @@ body {
 .marquee-content:has(.marquee-text:contains("BIRTHDAY")) {
     letter-spacing: 0.05em; /* Increase spacing for BIRTHDAY to prevent overlap */
 }
-*/
 
 .scroll-rtl {
     animation: scroll-rtl 25s linear infinite;
@@ -437,12 +436,10 @@ body {
     margin-right: 0.1em; /* Add slight spacing between repeated words */
 }
 
-
 .marquee-text:contains("BIRTHDAY") {
     margin-right: 1em; /* Ensure spacing after BIRTHDAY */
     transform: scale(0.95); /* Slightly reduce size to prevent overlap */
 }
-*/
 
 /* Scrolling text styling - cleaned up version */
 .scrolling-text-container {
@@ -524,22 +521,22 @@ body {
     }
 }
 
-/* Fix small gaps between colored stripes by adjusting positions slightly */
+/* Fix small gaps between colored stripes by using a more aggressive approach */
 .stacking-rectangle:nth-of-type(n+2) {
-    margin-top: -2px !important; /* Increased overlap to prevent gaps */
-}
-
-/* Special fix for first and second stripe gap - increased overlap */
-.stacking-rectangle:nth-of-type(2) {
-    margin-top: -6px !important; /* Maximize overlap for first and second stripe */
-}
-
-/* Fix small gaps between colored stripes by adjusting positions slightly */
-.stacking-rectangle:nth-of-type(n+2) {
-    margin-top: -2px !important; /* Increased overlap to prevent gaps */
+    margin-top: -8px !important; /* Base overlap for all stripes */
 }
 
 /* Special fix for first and second stripe gap */
 .stacking-rectangle:nth-of-type(2) {
-    margin-top: -6px !important; /* Maximize overlap for first and second stripe */
+    margin-top: -10px !important; /* Slightly increased overlap */
+}
+
+/* Special fix for second and third stripe gap - increased overlap */
+.stacking-rectangle:nth-of-type(3) {
+    margin-top: -12px !important; /* Further increased overlap to eliminate gap with second stripe */
+}
+
+/* Ensure proper overlap continues for all subsequent stripes */
+.stacking-rectangle:nth-of-type(n+4) {
+    margin-top: -10px !important; /* Apply same overlap to all remaining stripes */
 }
