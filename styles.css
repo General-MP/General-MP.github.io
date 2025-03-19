@@ -93,7 +93,7 @@ body {
     height: 100%; /* Ensure full height */
     top: 0; /* Position from top */
     transform: translateY(-100%); /* Start above the viewport */
-    transition: transform 1.2s cubic-bezier(0.25, 1, 0.5, 1); /* Smooth deceleration effect */
+    transition: transform 1.2s cubic-bezier(0.25, 1, 0.5, 1) !important; /* Restore animation */
     display: flex;
     align-items: center;
     margin: 0 !important; /* Remove any margin */
@@ -139,6 +139,7 @@ body {
     z-index: 15; /* Higher than other elements */
     display: none; /* Initially hidden */
     overflow: hidden; /* Prevent scrollbars */
+    transform-style: preserve-3d;
 }
 
 /* Scrolling text styling */
@@ -613,4 +614,1113 @@ body.zooming {
         font-size: 14px;
         padding: 8px 16px;
     }
+}
+
+/* Enhanced zoom styles */
+.zoom-target-stripe {
+    z-index: 35 !important; /* Ensure this stripe is above all others */
+    transition: transform 0.7s cubic-bezier(0.165, 0.84, 0.44, 1),
+                height 0.7s cubic-bezier(0.165, 0.84, 0.44, 1) !important;
+    transform-origin: center center;
+    will-change: transform, height; /* Optimize for animation performance */
+}
+
+.zoom-target-text {
+    position: relative;
+    transition: transform 0.7s cubic-bezier(0.165, 0.84, 0.44, 1),
+                letter-spacing 0.7s cubic-bezier(0.165, 0.84, 0.44, 1),
+                opacity 0.7s ease !important;
+    transform-origin: center center;
+    z-index: 36;
+}
+
+/* Emphasize the gaps between characters during zoom */
+.scroll-text {
+    transition: transform 0.7s cubic-bezier(0.165, 0.84, 0.44, 1),
+                letter-spacing 0.7s cubic-bezier(0.165, 0.84, 0.44, 1),
+                opacity 0.7s ease;
+}
+
+/* 3D effect enhancements */
+.zoom-ready {
+    perspective: 1000px;
+    perspective-origin: center center;
+    transition: perspective 0.7s ease;
+    transform-style: preserve-3d; /* Enable 3D for child elements */
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+}
+
+/* Ensure all rectangle transitions are smooth */
+.zoom-ready .stacking-rectangle {
+    transition: transform 0.7s cubic-bezier(0.165, 0.84, 0.44, 1),
+                height 0.7s cubic-bezier(0.165, 0.84, 0.44, 1),
+                opacity 0.7s ease;
+    transform-style: preserve-3d;
+}
+
+/* Make stacking container handle overflow properly during zoom */
+.stacking-container {
+    transform-style: preserve-3d;
+    overflow: hidden;
+}
+
+/* Override previous overlap settings during zoom animation */
+.zoom-ready .stacking-rectangle:nth-of-type(n+2) {
+    margin-top: 0 !important;
+}
+
+/* Adjust text scroller container to handle expanding height */
+.zoom-target-stripe .text-scroller {
+    height: 100%;
+}
+
+/* Enhanced zoom styles for diving into character gaps */
+.zoom-target-stripe {
+    z-index: 35 !important; /* Ensure this stripe is above all others */
+    transition: transform 1s cubic-bezier(0.165, 0.84, 0.44, 1) !important;
+    transform-origin: center center;
+    will-change: transform;
+    backface-visibility: hidden; /* Prevent flickering */
+    filter: none !important; /* Ensure no blur is applied */
+}
+
+.zoom-target-text {
+    position: relative;
+    transition: transform 1s cubic-bezier(0.165, 0.84, 0.44, 1),
+                letter-spacing 1s cubic-bezier(0.165, 0.84, 0.44, 1),
+                opacity 1s ease !important;
+    transform-origin: center center;
+    z-index: 36;
+    backface-visibility: hidden; /* Prevent flickering */
+    -webkit-font-smoothing: subpixel-antialiased; /* Better font rendering */
+}
+
+/* Character gap emphasis effect - ensure sharp rendering */
+.scroll-text {
+    transition: transform 1s cubic-bezier(0.165, 0.84, 0.44, 1),
+                letter-spacing 1s cubic-bezier(0.165, 0.84, 0.44, 1),
+                opacity 1s ease;
+    backface-visibility: hidden; /* Prevent flickering */
+    -webkit-font-smoothing: subpixel-antialiased; /* Better font rendering */
+    text-rendering: geometricPrecision; /* Sharper text rendering */
+    filter: none !important; /* No blur */
+}
+
+/* Enhance 3D effects for zoom while keeping sharpness */
+.zoom-ready {
+    perspective: 1000px;
+    perspective-origin: 50% 50%;
+    transition: perspective 1s ease;
+    transform-style: preserve-3d;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    backface-visibility: hidden;
+    filter: none !important; /* No blur */
+}
+
+/* Smoother overlay transition */
+#zoom-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 1.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+    pointer-events: none;
+    filter: none !important; /* No blur */
+}
+
+/* Animation pause control */
+.paused {
+    animation-play-state: paused !important;
+}
+
+/* Fix stacking rectangle container settings for zooming */
+.stacking-container {
+    overflow: hidden;
+    transform-style: preserve-3d;
+    filter: none !important; /* No blur */
+}
+
+/* Text scroller sizing during zoom */
+.zoom-target-stripe .text-scroller {
+    height: 100%;
+    filter: none !important; /* No blur */
+}
+
+/* Cleaner text rendering during zoom */
+.zoom-ready .scroll-text {
+    will-change: letter-spacing, opacity;
+    -webkit-font-smoothing: subpixel-antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: geometricPrecision;
+}
+
+/* Force all potential blur sources to be sharp */
+.zoom-target-stripe *,
+.zoom-ready * {
+    filter: none !important;
+    backface-visibility: hidden;
+}
+
+/* Optimize Thai text rendering */
+:lang(th) {
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: subpixel-antialiased;
+}
+
+/* Enhanced zoom styles for diving into character gaps */
+.zoom-target-stripe {
+    z-index: 35 !important; /* Ensure this stripe is above all others */
+    transition: transform 1s cubic-bezier(0.165, 0.84, 0.44, 1) !important;
+    transform-origin: center center;
+    will-change: transform, filter;
+}
+
+.zoom-target-text {
+    position: relative;
+    transition: transform 1s cubic-bezier(0.165, 0.84, 0.44, 1),
+                letter-spacing 1s cubic-bezier(0.165, 0.84, 0.44, 1),
+                opacity 1s ease !important;
+    transform-origin: center center;
+    z-index: 36;
+}
+
+/* Character gap emphasis effect */
+.scroll-text {
+    transition: transform 1s cubic-bezier(0.165, 0.84, 0.44, 1),
+                letter-spacing 1s cubic-bezier(0.165, 0.84, 0.44, 1),
+                opacity 1s ease;
+}
+
+/* Enhance 3D effects for zoom */
+.zoom-ready {
+    perspective: 1000px;
+    perspective-origin: 50% 50%;
+    transition: perspective 1s ease;
+    transform-style: preserve-3d;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+}
+
+/* Smoother overlay transition */
+#zoom-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 1.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+    pointer-events: none;
+}
+
+/* Animation pause control */
+.paused {
+    animation-play-state: paused !important;
+}
+
+/* Fix stacking rectangle container settings for zooming */
+.stacking-container {
+    overflow: hidden;
+    transform-style: preserve-3d;
+}
+
+/* Text scroller sizing during zoom */
+.zoom-target-stripe .text-scroller {
+    height: 100%;
+}
+
+/* Cleaner text rendering during zoom */
+.zoom-ready .scroll-text {
+    will-change: transform, letter-spacing, opacity;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Enhanced zoom styles */
+.zoom-target-stripe {
+    z-index: 35 !important; /* Ensure this stripe is above all others */
+    transition: transform 0.7s cubic-bezier(0.165, 0.84, 0.44, 1) !important;
+    transform-origin: center center;
+}
+
+.zoom-target-text {
+    position: relative;
+    transition: transform 0.7s cubic-bezier(0.165, 0.84, 0.44, 1),
+                letter-spacing 0.7s cubic-bezier(0.165, 0.84, 0.44, 1),
+                opacity 0.7s ease !important;
+    transform-origin: center center;
+    z-index: 36;
+}
+
+/* Emphasize the gaps between characters during zoom */
+.scroll-text {
+    transition: transform 0.5s cubic-bezier(0.165, 0.84, 0.44, 1),
+                letter-spacing 0.5s cubic-bezier(0.165, 0.84, 0.44, 1),
+                opacity 0.5s ease;
+}
+
+/* 3D effect enhancements */
+.zoom-ready {
+    perspective: 1000px;
+    perspective-origin: center center;
+    transition: perspective 0.7s ease;
+}
+
+.zoom-ready .stacking-rectangle {
+    transition: transform 0.7s cubic-bezier(0.165, 0.84, 0.44, 1),
+                opacity 0.5s ease;
+    transform-style: preserve-3d;
+}
+
+/* Override animation pausing/resuming for smoother transitions */
+.text-track.paused {
+    animation-play-state: paused !important;
+}
+
+/* Make overlay transitions smoother */
+#zoom-overlay {
+    transition: opacity 1s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+/* Make birthday message fade in more smoothly */
+#birthday-message {
+    transition: opacity 2s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+/* Enhanced zoom styles for realistic character gap zoom */
+.zoom-target-stripe {
+    z-index: 35 !important;
+    transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1),
+                height 0.8s cubic-bezier(0.23, 1, 0.32, 1),
+                opacity 0.8s cubic-bezier(0.23, 1, 0.32, 1) !important;
+    transform-origin: center center;
+    will-change: transform, height;
+    backface-visibility: hidden;
+    filter: none !important;
+}
+
+/* Optimize scrolling text for high-quality scaling */
+.zoom-target-stripe .scroll-text {
+    transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1),
+                letter-spacing 0.8s cubic-bezier(0.23, 1, 0.32, 1),
+                opacity 0.8s ease;
+    transform-origin: center center;
+    will-change: transform, letter-spacing;
+    backface-visibility: hidden;
+    -webkit-font-smoothing: subpixel-antialiased;
+    text-rendering: geometricPrecision;
+    filter: none !important;
+}
+
+/* Enhance 3D effects while maintaining sharpness */
+.zoom-ready {
+    perspective: 1000px;
+    perspective-origin: 50% 50%;
+    transition: perspective 0.8s ease;
+    transform-style: preserve-3d;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+}
+
+/* Eliminate gap issues during zoom */
+.zoom-ready .stacking-rectangle {
+    margin-top: 0 !important;
+    transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1),
+                height 0.8s cubic-bezier(0.23, 1, 0.32, 1),
+                opacity 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+    transform-style: preserve-3d;
+}
+
+/* Optimize text containers for zoom */
+.zoom-target-stripe .text-scroller {
+    height: 100%;
+    filter: none !important;
+    will-change: transform;
+}
+
+/* Ensure text track adapts to height changes */
+.zoom-target-stripe .text-track {
+    height: 100%;
+    align-items: center;
+}
+
+/* Optimize Thai text for sharper rendering */
+[lang="th"], 
+.scroll-text {
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: subpixel-antialiased;
+    font-feature-settings: "kern" 1;
+    letter-spacing: normal; /* Initial state before zoom */
+}
+
+/* Remove any blur from the entire zoom chain */
+.zoom-ready *,
+.stacking-container *,
+.zoom-target-stripe *,
+#zoom-overlay {
+    filter: none !important;
+}
+
+/* Container optimizations */
+.stacking-container {
+    transform-style: preserve-3d;
+    overflow: hidden;
+}
+
+/* Smoother overlay transition for final fade */
+#zoom-overlay {
+    transition: opacity 1.5s cubic-bezier(0.23, 1, 0.32, 1);
+    background-blend-mode: normal;
+}
+
+/* Maintain smooth animation while paused */
+.text-track.paused {
+    animation-play-state: paused !important;
+}
+
+/* Enhanced zoom styles for realistic immersive movement */
+.zoom-ready {
+    perspective: 1000px;
+    perspective-origin: 50% 50%;
+    transition: transform 1s cubic-bezier(0.19, 1, 0.22, 1), 
+                perspective 1s cubic-bezier(0.19, 1, 0.22, 1);
+    transform-style: preserve-3d;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    transform-origin: center center;
+    will-change: transform, perspective;
+}
+
+/* Keep stripes visually stable during zoom */
+.zoom-ready .stacking-rectangle {
+    transition: transform 1s cubic-bezier(0.19, 1, 0.22, 1),
+                opacity 1s cubic-bezier(0.19, 1, 0.22, 1);
+    transform-style: preserve-3d;
+    will-change: transform;
+    backface-visibility: hidden;
+}
+
+/* Optimize scrolling text for "moving through" effect */
+.zoom-ready .scroll-text {
+    transition: letter-spacing 1s cubic-bezier(0.19, 1, 0.22, 1),
+                opacity 1s cubic-bezier(0.19, 1, 0.22, 1);
+    transform-origin: center center;
+    will-change: letter-spacing, opacity;
+    backface-visibility: hidden;
+    -webkit-font-smoothing: subpixel-antialiased;
+    text-rendering: geometricPrecision;
+    letter-spacing: normal; /* Initial state */
+}
+
+/* Extra targeting for the target stripe */
+.zoom-target-stripe {
+    z-index: 35 !important;
+    /* No transform transitions, handled by JS for better control */
+}
+
+/* Remove all blur effects and ensure consistent text rendering */
+.zoom-ready *,
+.stacking-container *,
+.text-scroller *,
+.text-track *,
+.scroll-text,
+#zoom-overlay {
+    filter: none !important;
+}
+
+/* Optimize Thai text rendering */
+[lang="th"], 
+.scroll-text {
+    letter-spacing: normal; /* Initial state before zoom */
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: subpixel-antialiased;
+}
+
+/* Main container optimization for 3D effects */
+.stacking-container {
+    transform-style: preserve-3d;
+    transition: transform 1s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+/* Text track that holds the actual text */
+.zoom-ready .text-track {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    transform-style: preserve-3d;
+}
+
+/* Overlay for the final transition */
+#zoom-overlay {
+    transition: opacity 2s cubic-bezier(0.19, 1, 0.22, 1);
+    background-blend-mode: normal;
+    will-change: opacity;
+}
+
+/* Enhanced zoom styles for cohesive movement */
+.zoom-ready {
+    perspective: 1200px;
+    perspective-origin: 50% 50%;
+    transition: transform 1.5s cubic-bezier(0.23, 1, 0.32, 1), /* Slower transition */
+                perspective 1.5s cubic-bezier(0.23, 1, 0.32, 1);
+    transform-style: preserve-3d;
+    transform-origin: center center;
+    will-change: transform, perspective;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+}
+
+/* Keep all stripes together during zoom */
+.zoom-ready .stacking-rectangle {
+    transition: transform 1s cubic-bezier(0.23, 1, 0.32, 1);
+    transform-style: preserve-3d;
+    /* Don't use will-change for transform here to prevent compositing issues */
+    backface-visibility: hidden;
+}
+
+/* Text styles for smooth transitions */
+.zoom-ready .scroll-text {
+    transition: letter-spacing 1s cubic-bezier(0.23, 1, 0.32, 1),
+                opacity 1s cubic-bezier(0.23, 1, 0.32, 1);
+    transform-origin: center center;
+    will-change: letter-spacing;
+    backface-visibility: hidden;
+    -webkit-font-smoothing: subpixel-antialiased;
+    text-rendering: geometricPrecision;
+    letter-spacing: normal; /* Initial state */
+}
+
+/* Make sure the stripes don't have margins during zoom */
+.zoom-ready .stacking-rectangle:nth-of-type(n) {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+/* Unified container transformation */
+.stacking-container {
+    transform-style: preserve-3d;
+    transition: transform 1s cubic-bezier(0.23, 1, 0.32, 1);
+    transform-origin: center center;
+    overflow: hidden;
+}
+
+/* Make sure all elements stay sharp */
+.zoom-ready *,
+.stacking-container *,
+.text-scroller *,
+.text-track *,
+.scroll-text,
+#zoom-overlay {
+    filter: none !important;
+}
+
+/* Ensure text tracks maintain height */
+.zoom-ready .text-track {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    transform-style: preserve-3d;
+}
+
+/* Final overlay transition */
+#zoom-overlay {
+    transition: opacity 1.5s cubic-bezier(0.23, 1, 0.32, 1);
+    background-blend-mode: normal;
+    will-change: opacity;
+}
+
+/* Override letter spacing changes to maintain text structure */
+.scroll-text,
+.zoom-ready .scroll-text,
+.zoom-target-stripe .scroll-text {
+    letter-spacing: normal !important;
+    transition-property: opacity !important; /* Only allow opacity transitions */
+    color: white !important; /* Keep text white */
+}
+
+/* Preserve text structure during zoom */
+.zoom-target-text {
+    letter-spacing: inherit !important; /* Use the original spacing */
+}
+
+/* Remove all transitions that affect letter spacing */
+.zoom-ready .stacking-rectangle .scroll-text {
+    transition: opacity 1s cubic-bezier(0.19, 1, 0.22, 1) !important;
+    letter-spacing: normal !important;
+}
+
+/* Force opacity to stay at 1 for all text */
+.zoom-ready .stacking-rectangle .scroll-text,
+.zoom-target-stripe .scroll-text {
+    opacity: 1 !important;
+}
+
+/* Update text elements to support accelerated scaling during zoom */
+.zoom-ready .scroll-text {
+    transform-origin: center center !important;
+    transition: transform 0.8s cubic-bezier(0.19, 1, 0.22, 1) !important; 
+    will-change: transform !important;
+    opacity: 1 !important;
+    color: white !important;
+    backface-visibility: hidden;
+    -webkit-font-smoothing: subpixel-antialiased;
+    text-rendering: geometricPrecision;
+}
+
+/* Special handling for target text elements */
+.zoom-target-stripe .scroll-text {
+    transform-origin: center center !important;
+    transition: transform 0.8s cubic-bezier(0.1, 1, 0.2, 1) !important; 
+    will-change: transform !important;
+    z-index: 100;
+}
+
+/* Ensure overlay doesn't block text in the scaled view */
+#zoom-overlay {
+    z-index: 90; /* Below the scaled text */
+}
+
+/* Improved acceleration timing function for text elements */
+.zoom-ready .stacking-rectangle .scroll-text {
+    transition: transform 0.8s cubic-bezier(0.19, 1, 0.22, 1) !important;
+}
+
+/* Update text scaling effect to be more dramatic in the final phase */
+.zoom-ready .scroll-text {
+    transform-origin: center center !important;
+    transition: transform 0.5s cubic-bezier(0.2, 1, 0.3, 1) !important; /* Faster transition */
+    will-change: transform !important;
+    opacity: 1 !important;
+    color: white !important;
+    backface-visibility: hidden;
+}
+
+/* Special handling for target text elements in final zoom phase */
+.zoom-target-stripe .scroll-text {
+    transform-origin: center center !important;
+    transition: transform 0.4s cubic-bezier(0.1, 1, 0.2, 1) !important; /* Even faster transition */
+    will-change: transform !important;
+    z-index: 100;
+}
+
+/* Make overlay appear behind the expanding text */
+#zoom-overlay {
+    z-index: 90; /* Below the scaled text */
+    transition: opacity 1.2s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+/* Update text scaling effect for more subtle final phase scaling */
+.zoom-ready .scroll-text {
+    transform-origin: center center !important;
+    transition: transform 0.7s cubic-bezier(0.2, 1, 0.3, 1) !important; /* Slightly slower transition */
+    will-change: transform !important;
+    opacity: 1 !important;
+    color: white !important;
+    backface-visibility: hidden;
+}
+
+/* Special handling for target text elements in final zoom phase */
+.zoom-target-stripe .scroll-text {
+    transform-origin: center center !important;
+    transition: transform 0.6s cubic-bezier(0.1, 1, 0.2, 1) !important; /* Adjusted transition time */
+    will-change: transform !important;
+    z-index: 100;
+}
+
+/* Update text scaling effect for much more subtle expansion */
+.zoom-ready .scroll-text {
+    transform-origin: center center !important;
+    transition: transform 0.9s cubic-bezier(0.1, 0.7, 0.1, 1) !important; /* Smoother, gentler transition */
+    will-change: transform !important;
+    opacity: 1 !important;
+    color: white !important;
+    backface-visibility: hidden;
+}
+
+/* Special handling for target text elements with gentler scaling */
+.zoom-target-stripe .scroll-text {
+    transform-origin: center center !important;
+    transition: transform 0.8s cubic-bezier(0.1, 0.7, 0.1, 1) !important; /* Gentler easing */
+    will-change: transform !important;
+    z-index: 100;
+}
+
+/* Text phrase color classes - each phrase gets its own color */
+.text-phrase-1 { /* สุขสันต์ */
+    color: #ffdb4d !important; /* Yellow */
+}
+
+.text-phrase-2 { /* วันเกิด */
+    color: #ff7eb3 !important; /* Pink */
+}
+
+.text-phrase-3 { /* คับผม */
+    color: #4dffdb !important; /* Cyan */
+}
+
+/* Override to ensure text keeps its assigned color during zoom */
+.zoom-ready .scroll-text,
+.zoom-target-stripe .scroll-text {
+    color: inherit !important; /* Use the color from text-phrase classes */
+}
+
+/* Special handling for target text elements with gentler scaling */
+.zoom-target-stripe .scroll-text {
+    transform-origin: center center !important;
+    transition: transform 0.8s cubic-bezier(0.1, 0.7, 0.1, 1) !important; /* Gentler easing */
+    will-change: transform !important;
+    z-index: 100;
+}
+
+/* Text phrase color classes with increased specificity and !important to override all other rules */
+.text-phrase-1, 
+.zoom-ready .text-phrase-1,
+.zoom-target-stripe .text-phrase-1 { /* สุขสันต์ */
+    color: #ffdb4d !important; /* Yellow */
+}
+
+.text-phrase-2,
+.zoom-ready .text-phrase-2,
+.zoom-target-stripe .text-phrase-2 { /* วันเกิด */
+    color: #ff7eb3 !important; /* Pink */
+}
+
+.text-phrase-3,
+.zoom-ready .text-phrase-3,
+.zoom-target-stripe .text-phrase-3 { /* คับผม */
+    color: #4dffdb !important; /* Cyan */
+}
+
+/* Remove any rules that force text to white/black colors during zoom */
+.zoom-ready .scroll-text {
+    transform-origin: center center !important;
+    transition: transform 0.9s cubic-bezier(0.1, 0.7, 0.1, 1) !important; /* Smoother, gentler transition */
+    will-change: transform !important;
+    opacity: 1 !important;
+    /* color: white !important; */ /* Removed this to preserve text colors */
+    backface-visibility: hidden;
+}
+
+/* Special handling for target text elements with gentler scaling */
+.zoom-target-stripe .scroll-text {
+    transform-origin: center center !important;
+    transition: transform 0.8s cubic-bezier(0.1, 0.7, 0.1, 1) !important; /* Gentler easing */
+    will-change: transform !important;
+    z-index: 100;
+    /* No color override here */
+}
+
+/* Text phrase color classes with maximum specificity to prevent overrides */
+.text-phrase-1, 
+.zoom-ready .text-phrase-1,
+.zoom-target-stripe .text-phrase-1,
+.zoom-target-text.text-phrase-1 { /* สุขสันต์ */
+    color: #ffdb4d !important; /* Yellow */
+}
+
+.text-phrase-2,
+.zoom-ready .text-phrase-2,
+.zoom-target-stripe .text-phrase-2,
+.zoom-target-text.text-phrase-2 { /* วันเกิด */
+    color: #ff7eb3 !important; /* Pink */
+}
+
+.text-phrase-3,
+.zoom-ready .text-phrase-3,
+.zoom-target-stripe .text-phrase-3,
+.zoom-target-text.text-phrase-3 { /* คับผม */
+    color: #4dffdb !important; /* Cyan */
+}
+
+/* Remove ALL color overrides during zoom for scrolling text */
+.zoom-ready .scroll-text,
+.zoom-target-stripe .scroll-text,
+.zoom-target-text {
+    /* Prevent any color overrides but keep other transitions */
+    transition: transform 0.9s cubic-bezier(0.1, 0.7, 0.1, 1) !important;
+    will-change: transform !important;
+    opacity: 1 !important;
+    /* No color property here */
+}
+
+/* Ensure zoom happens with proper perspective for the complete disappearance effect */
+.zoom-ready {
+    perspective: 1200px;
+    perspective-origin: 50% 50%;
+    transition: transform 1.5s cubic-bezier(0.23, 1, 0.32, 1), /* Slower transition */
+                perspective 1.5s cubic-bezier(0.23, 1, 0.32, 1);
+    transform-style: preserve-3d;
+    transform-origin: center center;
+    will-change: transform, perspective;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+}
+
+/* Special handling for target text elements with gentler scaling */
+.zoom-target-stripe .scroll-text {
+    transform-origin: center center !important;
+    transition: transform 1.2s cubic-bezier(0.1, 0.7, 0.1, 1) !important; /* Slower transition */
+    will-change: transform !important;
+    z-index: 100;
+}
+
+/* Update text scaling effect for much more subtle expansion */
+.zoom-ready .scroll-text {
+    transform-origin: center center !important;
+    transition: transform 1.2s cubic-bezier(0.1, 0.7, 0.1, 1) !important; /* Slower transition */
+    will-change: transform !important;
+    opacity: 1 !important;
+    backface-visibility: hidden;
+}
+
+/* Special handling for target text elements with smoother transitions */
+.zoom-target-stripe .scroll-text {
+    transform-origin: center center !important;
+    transition: transform 1.8s cubic-bezier(0.22, 1, 0.36, 1) !important; /* Slower, smoother transition */
+    will-change: transform !important;
+    z-index: 100;
+}
+
+/* Ensure consistent transform origin for all text elements */
+.zoom-ready .scroll-text {
+    transform-origin: center center !important;
+    transition: transform 1.8s cubic-bezier(0.22, 1, 0.36, 1) !important; /* Slower, smoother transition */
+    will-change: transform !important;
+    opacity: 1 !important;
+    backface-visibility: hidden;
+}
+
+/* Ensure smooth zoom acceleration with optimized perspective */
+.zoom-ready {
+    perspective: 1200px;
+    perspective-origin: 50% 50%;
+    transition: transform 1.8s cubic-bezier(0.22, 1, 0.36, 1), 
+                perspective 1.8s cubic-bezier(0.22, 1, 0.36, 1);
+    transform-style: preserve-3d;
+    transform-origin: center center;
+    will-change: transform, perspective;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+}
+
+/* Ensure transition property only affects transform for more predictable animation */
+.zoom-target-text {
+    transition-property: transform !important;
+    transition-duration: 1.8s !important;
+    transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1) !important;
+    transform-origin: center center !important;
+}
+
+/* Special handling for target text elements with super-smooth transitions */
+.zoom-target-stripe .scroll-text {
+    transform-origin: center center !important;
+    /* Support both transform and opacity transitions smoothly */
+    transition: transform 2s cubic-bezier(0.22, 1, 0.36, 1),
+                opacity 1.5s cubic-bezier(0.22, 1, 0.36, 1) !important;
+    will-change: transform, opacity !important;
+    z-index: 100;
+}
+
+/* Ensure consistent transform origin for all text elements */
+.zoom-ready .scroll-text {
+    transform-origin: center center !important;
+    /* Support both transform and opacity transitions */
+    transition: transform 2s cubic-bezier(0.22, 1, 0.36, 1),
+                opacity 1.5s cubic-bezier(0.22, 1, 0.36, 1) !important;
+    will-change: transform, opacity !important;
+    backface-visibility: hidden;
+}
+
+/* Smoother overlay transition with longer duration */
+#zoom-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 2s cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
+}
+
+/* Special handling for target text elements with ultra-smooth transitions */
+.zoom-target-stripe .scroll-text {
+    transform-origin: center center !important;
+    /* Even longer and smoother transition */
+    transition: transform 3s cubic-bezier(0.1, 0.7, 0.1, 1),
+                opacity 2.5s cubic-bezier(0.1, 0.7, 0.1, 1) !important;
+    will-change: transform, opacity !important;
+    z-index: 100;
+}
+
+/* Ensure smooth overlay with longer duration */
+#zoom-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 3s cubic-bezier(0.1, 0.7, 0.1, 1);
+    pointer-events: none;
+}
+
+/* Smoother overlay transition with longer duration */
+#zoom-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 2.5s cubic-bezier(0.19, 1, 0.22, 1);
+    pointer-events: none;
+}
+
+/* Ensure smooth zoom with optimized rendering */
+.zoom-ready {
+    perspective: 1200px;
+    perspective-origin: 50% 50%;
+    transition: transform 2.5s cubic-bezier(0.19, 1, 0.22, 1), 
+                perspective 2.5s cubic-bezier(0.19, 1, 0.22, 1);
+    transform-style: preserve-3d;
+    transform-origin: center center;
+    will-change: transform, perspective;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+}
+
+/* Ensure ultra-smooth transitions for all elements involved in zoom */
+.zoom-target-stripe .scroll-text {
+    transform-origin: center center !important;
+    /* Even longer transition for maximum smoothness */
+    transition: transform 5s cubic-bezier(0.1, 0.7, 0.1, 1),
+                opacity 4s cubic-bezier(0.1, 0.7, 0.1, 1) !important;
+    will-change: transform, opacity !important;
+    z-index: 100;
+    /* Prevent any unexpected movements */
+    backface-visibility: hidden;
+}
+
+/* Ensure extremely long, smooth overlay transition */
+#zoom-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 5s cubic-bezier(0.1, 0.7, 0.1, 1);
+    pointer-events: none;
+    /* Prevent any rendering artifacts */
+    backface-visibility: hidden;
+    will-change: opacity;
+}
+
+/* Ensure ultra-smooth transitions for all elements involved in zoom */
+.zoom-target-stripe .scroll-text {
+    transform-origin: center center !important;
+    /* Even longer transition for maximum smoothness */
+    transition: transform 5s cubic-bezier(0.1, 0.7, 0.1, 1),
+                opacity 4s cubic-bezier(0.1, 0.7, 0.1, 1) !important;
+    will-change: transform, opacity !important;
+    z-index: 100;
+    /* Prevent any unexpected movements */
+    backface-visibility: hidden;
+}
+
+/* Ensure extremely long, smooth overlay transition */
+#zoom-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 5s cubic-bezier(0.1, 0.7, 0.1, 1);
+    pointer-events: none;
+    /* Prevent any rendering artifacts */
+    backface-visibility: hidden;
+    will-change: opacity;
+}
+
+/* Prevent any potential glitches in zoom target text transforms */
+.zoom-target-text {
+    /* Force hardware acceleration to prevent text rendering glitches */
+    transform: translateZ(0); 
+    backface-visibility: hidden !important;
+    -webkit-backface-visibility: hidden !important;
+    will-change: transform;
+    /* Ultra-smooth transition for combined transforms to prevent snapping */
+    transition: transform 5s cubic-bezier(0.1, 0.7, 0.1, 1) !important;
+}
+
+/* Ensure transform style preserves 3D for the entire hierarchy */
+.stacking-container, 
+.zoom-ready,
+.zoom-target-stripe,
+.text-scroller,
+.text-track {
+    transform-style: preserve-3d !important;
+    -webkit-transform-style: preserve-3d !important;
+}
+
+/* Critical fix: Restore initial animation for stripes */
+.stacking-rectangle {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    transform: translateY(-100%); /* Start above the viewport */
+    /* Specifically prioritize this transition for the initial slide in */
+    transition: transform 1.2s cubic-bezier(0.25, 1, 0.5, 1) !important;
+    display: flex;
+    align-items: center;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    box-sizing: border-box;
+}
+
+/* Only disable transitions on zoom target text when zooming begins */
+.zoom-ready .zoom-target-text {
+    /* Force hardware acceleration */
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    /* Prevent any automatic adjustments from the browser */
+    backface-visibility: hidden !important;
+    -webkit-backface-visibility: hidden !important;
+    /* Disable transitions only after zoom starts */
+    transition: none !important;
+    -webkit-transition: none !important;
+    animation: none !important;
+    -webkit-animation: none !important;
+    /* Ensure pixel-perfect rendering */
+    image-rendering: -webkit-optimize-contrast;
+    text-rendering: geometricPrecision;
+}
+
+/* Ensure zoom-target-stripe doesn't override initial animation */
+.stacking-rectangle.zoom-target-stripe {
+    /* Only apply this transition after zoom starts */
+    transition: transform 1.2s cubic-bezier(0.25, 1, 0.5, 1) !important;
+}
+
+/* Complete solution for zoom target text stability */
+.zoom-target-text {
+    /* Force hardware acceleration */
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    
+    /* Critical: Disable all CSS transitions/animations */
+    transition: none !important;
+    -webkit-transition: none !important;
+    animation: none !important;
+    -webkit-animation: none !important;
+    
+    /* Ensure stable rendering */
+    backface-visibility: hidden !important;
+    -webkit-backface-visibility: hidden !important;
+    perspective: 1000px;
+    -webkit-perspective: 1000px;
+    transform-style: flat !important;
+    -webkit-transform-style: flat !important;
+    
+    /* Ensure the best pixel-perfect rendering */
+    image-rendering: -webkit-optimize-contrast;
+    text-rendering: geometricPrecision;
+    
+    /* Fix position during zoom */
+    position: relative;
+    will-change: transform;
+    
+    /* Ensure exact sizing without rounding errors */
+    letter-spacing: inherit !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    
+    /* Optimize for Thai script */
+    font-kerning: none !important;
+    font-feature-settings: normal !important;
+}
+
+/* Once zoom is ready, disable transitions on the target stripe */
+.zoom-ready .zoom-target-stripe {
+    transition: none !important;
+}
+
+/* Complete fix for text jittering - eliminate ALL transitions on zoom target text */
+.zoom-target-text {
+    /* Force hardware acceleration */
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    /* Prevent any automatic adjustments from the browser */
+    backface-visibility: hidden !important;
+    -webkit-backface-visibility: hidden !important;
+    /* Disable all CSS animation and transitions */
+    transition: none !important;
+    -webkit-transition: none !important;
+    animation: none !important;
+    -webkit-animation: none !important;
+    /* Ensure pixel-perfect rendering */
+    image-rendering: -webkit-optimize-contrast;
+    text-rendering: geometricPrecision;
+    /* Force position to not get affected by container changes */
+    transform-style: flat !important;
+    -webkit-transform-style: flat !important;
+}
+
+/* Remove all conflicting transitions on all potentially related elements */
+.zoom-ready .zoom-target-text,
+.zoom-target-stripe .zoom-target-text,
+.text-track .zoom-target-text,
+.text-scroller .zoom-target-text {
+    transition: none !important;
+    -webkit-transition: none !important;
+    animation: none !important;
+    -webkit-animation: none !important;
+}
+
+/* Make sure our fix doesn't override the initial slide-in animation */
+.stacking-rectangle:not(.zoom-target-stripe) {
+    transition: transform 1.2s cubic-bezier(0.25, 1, 0.5, 1) !important;
+}
+
+/* Force hardware-accelerated rendering throughout the hierarchy */
+.stacking-container,
+.zoom-ready,
+.zoom-target-stripe,
+.text-scroller,
+.text-track,
+.scroll-text {
+    /* Force GPU acceleration on all elements in the chain */
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    backface-visibility: hidden !important;
+    -webkit-backface-visibility: hidden !important;
+    /* Ensure 3D context is preserved */
+    transform-style: preserve-3d !important;
+    -webkit-transform-style: preserve-3d !important;
 }
