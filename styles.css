@@ -20,7 +20,7 @@
 }
 
 body {
-    background-color: #ff70a6; /* Orangish pink color */
+    background-color: #ff6868; /* Orangish pink color */
     font-family: 'Helvetica Bold', Arial, sans-serif;
     height: 100vh;
     width: 100vw;
@@ -64,7 +64,7 @@ body {
 
 .number {
     font-size: 15vw; /* Responsive text size */
-    color: rgb(255, 223, 81);
+    color: rgb(255, 192, 74);
     font-family: 'Helvetica Bold', Arial, sans-serif;
     font-weight: bold;
     letter-spacing: -0.05em; /* Tighter letter spacing */
@@ -77,7 +77,7 @@ body {
     position: absolute;
     bottom: 15vh; /* Increased from 8vh to 15vh to move it much higher */
     font-size: 2vmin; /* Responsive text size */
-    color: rgb(255, 223, 81);
+    color: rgb(255, 192, 74);
     font-family: 'Helvetica Bold', Arial, sans-serif;
     letter-spacing: -0.02em; /* Slightly tighter letter spacing */
 }
@@ -121,23 +121,23 @@ body {
 
 /* Three distinct rectangle colors that will repeat */
 .stacking-rectangle:nth-of-type(3n+1) {
-    background-color: #ff9770; /* Orange */
+    background-color: #ff8255; /* Orange */
     z-index: 30; /* Higher z-index for first rectangle */
 }
 
 .stacking-rectangle:nth-of-type(3n+2) {
-    background-color: #70a6ff; /* Blue */
+    background-color: #67b8ff; /* Blue */
     z-index: 29; /* Middle z-index */
 }
 
 .stacking-rectangle:nth-of-type(3n+3) {
-    background-color: #e9ff70; /* Light green */
+    background-color: #e5fc64; /* Light green */
     z-index: 28; /* Lower z-index */
 }
 
 /* First rectangle specifically */
 .stacking-rectangle:first-child {
-    background-color: #ff9770 !important; /* Force orange for first rectangle */
+    background-color: #ff8255 !important; /* Force orange for first rectangle */
     z-index: 32 !important; /* Highest z-index */
 }
 

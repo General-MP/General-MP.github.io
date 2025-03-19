@@ -1,3 +1,57 @@
+// Color configuration - centralized for easy modification
+const colorConfig = {
+    // Initial counter animation colors (referenced in HTML)
+    initial: {
+        background: '#ff6161',        // Initial background (orangish pink)
+        counterText: '#ffd037', // Counter text color (yellowish)
+        // Color changes during counting
+        transitions: {
+            count15: {
+                background: '#ffd037', // Yellow background at count 15
+                text: '#000000'        // Black text at count 15
+            },
+            count30: {
+                background: '#940071', // Purple background at count 30
+                text: '#ffd037'        // Yellow text at count 30
+            }
+        }
+    },
+    // Stacking rectangles colors (alternating pattern)
+    stackingRectangles: {
+        first: '#ff8255',  // Orange (every 3n+1)
+        second: '#67b8ff', // Blue (every 3n+2)
+        third: '#e5fc64'   // Light green (every 3n+3)
+    },
+    // Scrolling text phrase colors
+    phrases: {
+        first: '#ffdb4d',  // Yellow for "สุขสันต์" (phrase 1)
+        second: '#ff7eb3', // Pink for "วันเกิด" (phrase 2)
+        third: '#4dffdb'   // Cyan for "คับผม!" (phrase 3)
+    },
+    // Final birthday message screen
+    finalMessage: {
+        // Contrasting text colors based on background
+        textContrast: {
+            orange: {      // For orange background
+                first: '#4dffdb',  // Cyan
+                second: '#ff7eb3'  // Yellow
+            },
+            blue: {         // For blue background
+                first: '#ff7eb3',  // Magenta
+                second: '#67b8ff'  // Yellow
+            },
+            green: {        // For green background
+                first: '#4dffdb',  // Magenta
+                second: '#ff7eb3'  // Cyan
+            },
+            fallback: {     // Default fallback
+                first: '#ff7eb3',  // Magenta
+                second: '#67b8ff'  // Cyan
+            }
+        }
+    }
+};
+
 // Function to create stacking rectangles after main animation
 function createStackingRectangles() {
     // Create container for rectangles
@@ -5,27 +59,30 @@ function createStackingRectangles() {
     container.className = 'stacking-container';
     document.body.appendChild(container);
     
-    // Initialize audio but don't play yet - moved up for earlier initialization
+    // Initialize audio but don't play immediately - we'll play it at the right moment
     const bgMusic = new Audio('sounds/hbdremix.mp3');
     bgMusic.loop = true;
     bgMusic.volume = 0.7; // Set volume to 70%
-    
-    // Pre-load the audio to reduce delay
     bgMusic.preload = 'auto';
     
-    // Immediately try to play audio - this should happen before any animation starts
-    const playPromise = bgMusic.play();
-    if (playPromise !== undefined) {
-        playPromise.catch(error => {
-            console.log("Autoplay prevented. User interaction required.");
-            // Add a click event listener to the document to play on first click
-            const startAudio = () => {
-                bgMusic.play();
-                document.removeEventListener('click', startAudio);
-            };
-            document.addEventListener('click', startAudio);
-        });
-    }
+    // Function to play audio with autoplay fallback
+    const playBackgroundMusic = () => {
+        const playPromise = bgMusic.play();
+        if (playPromise !== undefined) {
+            playPromise.catch(error => {
+                console.log("Autoplay prevented. User interaction required.");
+                // Add a click event listener to the document to play on first click
+                const startAudio = () => {
+                    bgMusic.play();
+                    document.removeEventListener('click', startAudio);
+                };
+                document.addEventListener('click', startAudio);
+            });
+        }
+    };
+    
+    // Play the music right after "51" disappears, before stacking animation starts
+    playBackgroundMusic();
     
     // Calculate screen height
     const viewportHeight = window.innerHeight;
@@ -56,6 +113,9 @@ function createStackingRectangles() {
         rect.style.margin = '0';
         rect.style.padding = '0';
         rect.style.boxSizing = 'border-box';
+        
+        // Apply a custom attribute to identify the color pattern
+        rect.dataset.colorIndex = i % 3;
         
         rect.style.transform = 'translateY(-100%)';
         container.appendChild(rect);
@@ -152,6 +212,15 @@ function createStackingRectangles() {
             textSpan.textContent = text;
             textSpan.style.fontSize = `${fontSize * fontSizeAdjust}px`;
             textSpan.style.marginRight = `${approxCharWidth * gapMultiplier}px`;
+            
+            // Apply the color directly using the colorConfig
+            const phrasesColors = [
+                colorConfig.phrases.first,
+                colorConfig.phrases.second,
+                colorConfig.phrases.third
+            ];
+            textSpan.style.color = phrasesColors[textPattern];
+            
             track.appendChild(textSpan);
         }
         
@@ -542,25 +611,25 @@ function setupZoomInteractions(container, rectangles) {
             const g = parseInt(rgbMatch[2]);
             const b = parseInt(rgbMatch[3]);
             
-            // Determine which stripe color was used and assign high contrast colors
-            if (r > 200 && g > 100 && b < 130) { // Orange background (#ff9770)
-                firstTextColor = '#00ffff'; // Cyan (contrasting with orange)
-                secondTextColor = '#ffff00'; // Yellow (different contrast)
-            } else if (r < 130 && g > 130 && b > 200) { // Blue background (#70a6ff)
-                firstTextColor = '#ff00ff'; // Magenta (contrasting with blue)
-                secondTextColor = '#ffff00'; // Yellow (different contrast)
-            } else if (r > 200 && g > 200 && b < 130) { // Green background (#e9ff70)
-                firstTextColor = '#ff00ff'; // Magenta (contrasting with green)
-                secondTextColor = '#00ffff'; // Cyan (different contrast)
+            // Use the centralized color config to set message colors based on background
+            if (r > 200 && g > 100 && b < 130) { // Orange background
+                firstTextColor = colorConfig.finalMessage.textContrast.orange.first;
+                secondTextColor = colorConfig.finalMessage.textContrast.orange.second;
+            } else if (r < 130 && g > 130 && b > 200) { // Blue background
+                firstTextColor = colorConfig.finalMessage.textContrast.blue.first;
+                secondTextColor = colorConfig.finalMessage.textContrast.blue.second;
+            } else if (r > 200 && g > 200 && b < 130) { // Green background
+                firstTextColor = colorConfig.finalMessage.textContrast.green.first;
+                secondTextColor = colorConfig.finalMessage.textContrast.green.second;
             } else {
                 // Default fallback with high contrast
-                firstTextColor = '#ff00ff'; // Magenta
-                secondTextColor = '#00ffff'; // Cyan
+                firstTextColor = colorConfig.finalMessage.textContrast.fallback.first;
+                secondTextColor = colorConfig.finalMessage.textContrast.fallback.second;
             }
         } else {
             // Default fallback
-            firstTextColor = '#ff00ff'; // Magenta
-            secondTextColor = '#00ffff'; // Cyan
+            firstTextColor = colorConfig.finalMessage.textContrast.fallback.first;
+            secondTextColor = colorConfig.finalMessage.textContrast.fallback.second;
         }
         
         // Create container for divided screen
