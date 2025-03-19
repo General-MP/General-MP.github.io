@@ -1,5 +1,4 @@
 // Function to create stacking rectangles after main animation
-// Function to create stacking rectangles after main animation
 function createStackingRectangles() {
     // Create container for rectangles
     const container = document.createElement('div');
@@ -20,18 +19,21 @@ function createStackingRectangles() {
     }
     
     // Use exact division to cover the screen with no gaps
-    const rectHeight = viewportHeight / numberOfDivisions;
-    const numberOfRectangles = numberOfDivisions; // removed the extra stripe
+    const baseRectHeight = viewportHeight / numberOfDivisions;
+    const numberOfRectangles = numberOfDivisions;
     
-    // Create rectangles
+    // Create rectangles with precise heights to ensure exact fit
     const rectangles = [];
     for (let i = 0; i < numberOfRectangles; i++) {
         const rect = document.createElement('div');
         rect.className = 'stacking-rectangle';
         
-        // Add 1px extra height for the second and third stripes
-        const height = (i === 1 || i === 2) ? rectHeight + 1 : rectHeight;
-        rect.style.height = height + 'px';
+        // Ensure exact height to prevent rounding issues
+        rect.style.height = `${baseRectHeight}px`;
+        // Disable any margin/padding that could cause spacing issues
+        rect.style.margin = '0';
+        rect.style.padding = '0';
+        rect.style.boxSizing = 'border-box';
         
         rect.style.transform = 'translateY(-100%)';
         container.appendChild(rect);
@@ -45,18 +47,18 @@ function createStackingRectangles() {
     function animateStripe(i) {
         if (i >= rectangles.length) {
             // All stripes have been animated, set up zoom interactions after a delay
-            setTimeout(setupZoomInteractions, 3000, container, rectangles);
+            setTimeout(setupZoomInteractions, 2000, container, rectangles);
             return;
         }
         setTimeout(() => {
             // CRITICAL FIX: Force removal of any interfering transitions first
             rectangles[i].style.transition = 'transform 1.2s cubic-bezier(0.25, 1, 0.5, 1)';
             
-            // Adjust offsets for all stripes to remove gaps
-            let offset = i * rectHeight;
-            if (i === 1) offset += 1; // Small adjustment for second stripe
-            if (i === 2) offset += 4; // Increased adjustment for third stripe to close the gap
-            rectangles[i].style.transform = `translateY(${offset}px)`;
+            // Calculate exact position for perfect alignment
+            const exactPosition = baseRectHeight * i;
+            
+            // Apply precise position
+            rectangles[i].style.transform = `translateY(${exactPosition}px)`;
             
             setTimeout(() => {
                 addScrollingText(rectangles[i], i, 0);
@@ -82,7 +84,7 @@ function createStackingRectangles() {
                 phraseClass = 'text-phrase-2';
                 break;
             case 2: 
-                text = 'คับผม'; 
+                text = 'คับผม!'; 
                 phraseClass = 'text-phrase-3';
                 break;
         }
@@ -107,10 +109,10 @@ function createStackingRectangles() {
         let fontSizeAdjust = 1.0;
         
         
-        if (text === 'BIRTHDAY') {
+        if (text === 'วันเกิด') {
             gapMultiplier = 0.6; // Reduced to 25% of original 6
             fontSizeAdjust = 0.9; // Keep the same size adjustment
-        } else if (text === 'DAD') {
+        } else if (text === 'คับผม!') {
             gapMultiplier = 0.6; // Reduced to 25% of original 4
         }
         
@@ -159,7 +161,6 @@ function setupZoomInteractions(container, rectangles) {
     let zoomLevel = 0;
     const maxZoomLevel = 1200; // increased max zoom level from 900 to 1200
     let isZooming = false;
-    let zoomTimeout;
     
     // Select the middle stripe for focused zooming
     const middleIndex = Math.floor(rectangles.length / 2);
@@ -499,111 +500,201 @@ function setupZoomInteractions(container, rectangles) {
         return overlay;
     }
     
-    // Show final birthday message
+    // Show final divided screen with typewriter text
     function showBirthdayMessage() {
-        // If we already have a message, don't create another one
-        if (document.getElementById('birthday-message')) return;
+        // If we already have the divided screen, don't create another one
+        if (document.getElementById('divided-screen')) return;
         
-        // Create message container
-        const messageContainer = document.createElement('div');
-        messageContainer.id = 'birthday-message';
-        messageContainer.style.position = 'fixed';
-        messageContainer.style.top = '50%';
-        messageContainer.style.left = '50%';
-        messageContainer.style.transform = 'translate(-50%, -50%)';
-        messageContainer.style.fontSize = '5vw';
-        messageContainer.style.fontWeight = 'bold';
-        messageContainer.style.color = '#ffffff'; // White text on colored background
-        messageContainer.style.textAlign = 'center';
-        messageContainer.style.fontFamily = "'SaoChingcha', Arial, sans-serif";
-        messageContainer.style.opacity = '0';
-        messageContainer.style.transition = 'opacity 2s ease';
-        messageContainer.style.zIndex = '1001';
+        // Get the target stripe color from the overlay
+        const overlay = document.getElementById('zoom-overlay');
+        const bgColor = overlay ? overlay.style.backgroundColor : '#000000';
         
-        // Add message content
-        messageContainer.innerHTML = 'สุขสันต์วันเกิดคับผม<br>❤️';
+        // Determine contrasting text color based on background color
+        let textColor = '#FFFFFF'; // Default to white
         
-        document.body.appendChild(messageContainer);
+        // Extract RGB components from background color
+        const rgbMatch = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+        if (rgbMatch) {
+            const r = parseInt(rgbMatch[1]);
+            const g = parseInt(rgbMatch[2]);
+            const b = parseInt(rgbMatch[3]);
+            
+            // Determine which stripe color was used
+            if (r > 200 && g > 100 && b < 130) { // Orange background (#ff9770)
+                textColor = '#ffdb4d'; // Yellow
+            } else if (r < 130 && g > 130 && b > 200) { // Blue background (#70a6ff)
+                textColor = '#ff7eb3'; // Pink
+            } else if (r > 200 && g > 200 && b < 130) { // Green background (#e9ff70)
+                textColor = '#4dffdb'; // Cyan
+            }
+        }
         
-        // Fade in the message
+        // Create container for divided screen
+        const dividedScreen = document.createElement('div');
+        dividedScreen.id = 'divided-screen';
+        dividedScreen.style.position = 'fixed';
+        dividedScreen.style.top = '0';
+        dividedScreen.style.left = '0';
+        dividedScreen.style.width = '100%';
+        dividedScreen.style.height = '100%';
+        dividedScreen.style.zIndex = '1001';
+        dividedScreen.style.display = 'flex';
+        dividedScreen.style.flexDirection = 'column';
+        dividedScreen.style.backgroundColor = bgColor;
+        dividedScreen.style.opacity = '0';
+        dividedScreen.style.transition = 'opacity 1s ease';
+        
+        // Create sections
+        const upperSection = document.createElement('div');
+        upperSection.className = 'screen-section upper-section';
+        upperSection.style.flex = '1';
+        upperSection.style.display = 'flex';
+        upperSection.style.justifyContent = 'center';
+        upperSection.style.alignItems = 'center';
+        upperSection.style.padding = '2rem';
+        upperSection.style.backgroundColor = bgColor;
+        
+        const lowerSection = document.createElement('div');
+        lowerSection.className = 'screen-section lower-section';
+        lowerSection.style.flex = '1';
+        lowerSection.style.display = 'flex';
+        lowerSection.style.justifyContent = 'center';
+        lowerSection.style.alignItems = 'center';
+        lowerSection.style.padding = '2rem';
+        lowerSection.style.backgroundColor = bgColor;
+        
+        // Prepare content
+        const text1 = "ขอให้พ่อสุขภาพร่างกายแข็งแรง มีความสุขในทุกวัน เป็นหัวหน้าครอบครัวที่น่ารักและแสนดีแบบนี้ตลอดไปนะคะ";
+        const text2 = "ขอให้คุณพ่อมีความสุข มีสุขภาพแข็งแรง อยู่กับพูห์กับคุณแม่ไปนานๆนะคับ (รอเลขนับเกิน 100 อยู่คับ) หมีพูห์ดีใจที่ได้เกิดมาเป็นลูกคุณพ่อคับ";
+        
+        // Create fixed size, pre-measured containers
+        const upperContent = createTypewriterContainer(text1, textColor);
+        const lowerContent = createTypewriterContainer(text2, textColor);
+        
+        upperSection.appendChild(upperContent);
+        lowerSection.appendChild(lowerContent);
+        
+        dividedScreen.appendChild(upperSection);
+        dividedScreen.appendChild(lowerSection);
+        
+        document.body.appendChild(dividedScreen);
+        
+        // Fade in the divided screen
         setTimeout(() => {
-            messageContainer.style.opacity = '1';
+            dividedScreen.style.opacity = '1';
+            
+            // Start typing animations
+            startTypewriterAnimation(upperContent, 500);
+            startTypewriterAnimation(lowerContent, 4000);
         }, 500);
+    }
+    
+    // Helper function to create a typewriter container with pre-rendered text
+    function createTypewriterContainer(text, textColor) {
+        const container = document.createElement('div');
+        container.className = 'typewriter-container';
+        container.style.width = '100%';
+        container.style.maxWidth = '80%';
+        container.style.margin = '0 auto';
+        container.style.textAlign = 'center';
+        container.style.position = 'relative';
+        
+        // Create the paragraph that will contain the text
+        const paragraph = document.createElement('p');
+        paragraph.className = 'typewriter-text';
+        paragraph.style.fontFamily = "'SaoChingcha', Arial, sans-serif";
+        paragraph.style.fontSize = 'clamp(1rem, 4vw, 2.5rem)';
+        paragraph.style.color = textColor;
+        paragraph.style.textAlign = 'center';
+        paragraph.style.margin = '0';
+        paragraph.style.padding = '0';
+        paragraph.style.lineHeight = '1.5';
+        paragraph.style.width = '100%';
+        paragraph.style.position = 'relative';
+        
+        // Pre-render all characters as spans
+        text.split('').forEach(char => {
+            const span = document.createElement('span');
+            span.textContent = char;
+            span.style.opacity = '0';
+            span.style.display = 'inline-block';
+            span.style.position = 'relative';
+            paragraph.appendChild(span);
+        });
+        
+        container.appendChild(paragraph);
+        return container;
+    }
+    
+    // Helper function to animate the typewriter text
+    function startTypewriterAnimation(container, delay) {
+        const paragraph = container.querySelector('.typewriter-text');
+        const chars = paragraph.querySelectorAll('span');
+        
+        setTimeout(() => {
+            let index = 0;
+            const interval = setInterval(() => {
+                if (index < chars.length) {
+                    chars[index].style.opacity = '1';
+                    index++;
+                } else {
+                    clearInterval(interval);
+                }
+            }, 70); // Speed of typing
+        }, delay);
     }
     
     // Set up event listeners based on device type
     if (isMobileDevice()) {
-        // For mobile: use tap/click to increase zoom level
+        // For mobile: use tap/click to START auto-zoom sequence
         document.addEventListener('click', () => {
             if (!isZooming) {
-                zoomLevel += 100; // increased increment (from 50 to 100)
-                if (zoomLevel > maxZoomLevel) zoomLevel = maxZoomLevel;
-                applyZoom();
+                isZooming = true; // Mark that we're now zooming to prevent multiple triggers
                 
-                clearTimeout(zoomTimeout);
-                if (zoomLevel < maxZoomLevel) {
-                    zoomTimeout = setTimeout(() => {
-                        const autoZoomInterval = setInterval(() => {
-                            zoomLevel += 20; // increased auto zoom increment (from 10 to 20)
-                            if (zoomLevel >= maxZoomLevel) {
-                                zoomLevel = maxZoomLevel;
-                                clearInterval(autoZoomInterval);
-                            }
-                            applyZoom();
-                        }, 25); // faster interval (from 50ms to 25ms)
-                    }, 3000);
-                }
+                // Start auto-zoom immediately at a steady pace
+                const autoZoomInterval = setInterval(() => {
+                    zoomLevel += 20; // Steady increment for smooth zoom
+                    
+                    if (zoomLevel >= maxZoomLevel) {
+                        zoomLevel = maxZoomLevel;
+                        clearInterval(autoZoomInterval);
+                    }
+                    
+                    applyZoom();
+                }, 25); // Fast, smooth interval
             }
         });
     } else {
-        // For desktop: use scroll to control zoom level
-        let lastScrollTime = 0;
-        
+        // For desktop: use a single scroll to START auto-zoom sequence
         document.addEventListener('wheel', (e) => {
             e.preventDefault();
             
-            // Throttle scroll events
-            const now = Date.now();
-            if (now - lastScrollTime < 50) return;
-            lastScrollTime = now;
-            
-            // Increase zoom level faster based on scroll direction
-            const delta = Math.sign(e.deltaY) * 40; // increased multiplier (from 20 to 40)
-            zoomLevel += delta;
-            
-            // Constrain zoom level
-            zoomLevel = Math.max(0, Math.min(maxZoomLevel, zoomLevel));
-            
-            applyZoom();
-            
-            // Reset auto-zoom timeout
-            clearTimeout(zoomTimeout);
-            if (zoomLevel < maxZoomLevel) {
-                zoomTimeout = setTimeout(() => {
+            if (!isZooming) {
+                isZooming = true; // Mark that we're now zooming to prevent multiple triggers
+                
+                // Determine initial direction from scroll
+                const zoomDirection = Math.sign(e.deltaY);
+                
+                // Only continue auto-zooming in if initial scroll was down/in
+                if (zoomDirection > 0) {
+                    // Start auto-zoom immediately at a steady pace
                     const autoZoomInterval = setInterval(() => {
-                        zoomLevel += 20; // increased auto zoom increment (from 10 to 20)
+                        zoomLevel += 20; // Steady increment
+                        
                         if (zoomLevel >= maxZoomLevel) {
                             zoomLevel = maxZoomLevel;
                             clearInterval(autoZoomInterval);
                         }
+                        
                         applyZoom();
-                    }, 25); // faster interval
-                }, 3000);
+                    }, 25); // Fast, smooth interval
+                } else {
+                    // If user initially scrolled backward, don't auto-zoom
+                    isZooming = false;
+                }
             }
         }, { passive: false });
     }
-    
-    // Start auto-zoom after a delay if no interaction
-    zoomTimeout = setTimeout(() => {
-        const autoZoomInterval = setInterval(() => {
-            zoomLevel += 10;
-            if (zoomLevel >= maxZoomLevel) {
-                zoomLevel = maxZoomLevel;
-                clearInterval(autoZoomInterval);
-            }
-            applyZoom();
-        }, 50);
-    }, 3000);
 }
 
 // Remove these helper functions as they cause recalculations during zoom

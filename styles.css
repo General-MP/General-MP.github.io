@@ -35,6 +35,7 @@ body {
     justify-content: center;
     align-items: center;
     position: relative;
+    padding-bottom: 10vh; /* Add padding to the bottom to move everything up */
 }
 
 /* Rectangle that appears above the text */
@@ -69,11 +70,12 @@ body {
     letter-spacing: -0.05em; /* Tighter letter spacing */
     position: relative;
     display: inline-block;
+    margin-top: -5vh; /* Move the number up slightly to improve centering */
 }
 
 .credit {
     position: absolute;
-    bottom: 5vh; /* Position slightly above the bottom */
+    bottom: 8vh; /* Increase from 5vh to 8vh to move it higher and avoid taskbar */
     font-size: 2vmin; /* Responsive text size */
     color: rgb(255, 223, 81);
     font-family: 'Helvetica Bold', Arial, sans-serif;
@@ -1723,4 +1725,230 @@ body.zooming {
     /* Ensure 3D context is preserved */
     transform-style: preserve-3d !important;
     -webkit-transform-style: preserve-3d !important;
+}
+
+/* Divided screen styles */
+#divided-screen {
+    background-color: #000; /* Black background or use another color */
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    z-index: 1001;
+}
+
+.upper-section, .lower-section {
+    background-color: #000; /* Dark background for upper section */
+    color: #fff; /* White text */
+    position: relative;
+    overflow: hidden;
+}
+
+/* Typewriter container styling - fixed size from start */
+.typewriter {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    position: relative;
+}
+
+/* New typewriter text styling with fixed dimensions */
+.typewriter-text {
+    display: block;
+    white-space: normal;
+    word-break: break-word;
+    letter-spacing: .05em;
+    margin: 0;
+    padding: 0;
+    line-height: 1.5;
+    text-align: center;
+    width: 100%;
+    opacity: 1;
+    position: relative;
+}
+
+/* Individual character animations */
+.typewriter-text span {
+    transition: opacity 0.1s ease;
+    display: inline-block;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .typewriter-text {
+        font-size: clamp(0.875rem, 3.5vw, 1.75rem);
+    }
+    
+    .screen-section {
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .typewriter-text {
+        font-size: clamp(0.75rem, 3vw, 1.5rem);
+    }
+    
+    .screen-section {
+        padding: 0.5rem;
+    }
+}
+
+/* Typewriter effect */
+.typewriter {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    transform-origin: center;
+    position: relative;
+}
+
+/* Typewriter effect - modified to remove cursor */
+.typewriter p {
+    overflow: hidden;
+    /* Removed border-right (cursor) property */
+    display: inline-block;
+    white-space: normal;
+    word-break: break-word;
+    letter-spacing: .05em;
+    margin: 0;
+    padding: 0;
+    line-height: 1.5;
+    text-align: left;
+    position: relative;
+    transform-origin: center center;
+    max-width: 0;
+    animation: 
+        typing-width 3.5s steps(40, end) forwards; /* Removed blink-caret animation */
+    height: auto;
+    overflow-wrap: break-word;
+    transform: scaleY(1.5) scaleX(0.8);
+    animation-fill-mode: forwards;
+}
+
+/* The first character that remains fixed in place */
+.typewriter p .first-char {
+    display: inline-block;
+    position: relative;
+    text-align: left;
+    transform-origin: left center;
+}
+
+/* Delay the second paragraph */
+.lower-section .typewriter p {
+    animation-delay: 3.7s; /* Starts after the first paragraph finishes */
+}
+
+/* Width animation for typing effect */
+@keyframes typing-width {
+    0% { 
+        max-width: 1ch; /* Start with just enough width for the first character */
+        transform: scaleY(1.5) scaleX(0.8);
+    }
+    10% {
+        transform: scaleY(1.3) scaleX(0.85);
+    }
+    30% {
+        transform: scaleY(1.2) scaleX(0.9);
+    }
+    60% {
+        transform: scaleY(1.1) scaleX(0.95);
+    }
+    100% { 
+        max-width: 100%; /* End with full width */
+        transform: scaleY(1) scaleX(1);
+    }
+}
+
+/* Remove the blink-caret animation entirely */
+/* @keyframes blink-caret has been removed */
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .typewriter p {
+        font-size: clamp(0.875rem, 3.5vw, 1.75rem);
+    }
+    
+    .screen-section {
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .typewriter p {
+        font-size: clamp(0.75rem, 3vw, 1.5rem);
+    }
+    
+    .screen-section {
+        padding: 0.5rem;
+    }
+}
+
+/* Typewriter container styling with fixed dimensions */
+.typewriter-container {
+    width: 100%;
+    max-width: 80%;
+    margin: 0 auto;
+    text-align: center;
+    position: relative;
+    display: block;
+    /* No transitions or animations that could cause movement */
+}
+
+/* Typewriter text styling - no animations except for character visibility */
+.typewriter-text {
+    font-family: 'SaoChingcha', Arial, sans-serif;
+    font-size: clamp(1rem, 4vw, 2.5rem);
+    text-align: center;
+    margin: 0;
+    padding: 0;
+    line-height: 1.5;
+    width: 100%;
+    position: relative;
+    white-space: normal;
+    word-break: break-word;
+    /* No transforms or animations that would cause movement */
+}
+
+/* Individual character spans */
+.typewriter-text span {
+    display: inline-block;
+    position: relative;
+    transition: opacity 0.1s ease;
+    /* No transforms or transitions that would cause movement */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .typewriter-text {
+        font-size: clamp(0.875rem, 3.5vw, 1.75rem);
+    }
+}
+
+@media (max-width: 480px) {
+    .typewriter-text {
+        font-size: clamp(0.75rem, 3vw, 1.5rem);
+    }
+}
+
+/* Remove the old typewriter styles that cause movement */
+.typewriter p {
+    /* Removing styles that cause movement */
+    animation: none;
+    transform: none;
+    max-width: none;
+    overflow: visible;
+}
+
+/* Remove the width animation for typing effect */
+@keyframes typing-width {
+    0%, 100% { 
+        transform: none;
+        max-width: 100%;
+    }
 }
