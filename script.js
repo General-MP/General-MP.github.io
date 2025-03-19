@@ -59,30 +59,67 @@ function createStackingRectangles() {
     container.className = 'stacking-container';
     document.body.appendChild(container);
     
-    // Initialize audio but don't play immediately - we'll play it at the right moment
+    // Initialize audio immediately and set it to preload
     const bgMusic = new Audio('sounds/hbdremix.mp3');
     bgMusic.loop = true;
     bgMusic.volume = 0.7; // Set volume to 70%
     bgMusic.preload = 'auto';
+    let audioStarted = false;
     
-    // Function to play audio with autoplay fallback
+    // Function to play audio with enhanced autoplay handling
     const playBackgroundMusic = () => {
-        const playPromise = bgMusic.play();
-        if (playPromise !== undefined) {
-            playPromise.catch(error => {
-                console.log("Autoplay prevented. User interaction required.");
-                // Add a click event listener to the document to play on first click
-                const startAudio = () => {
-                    bgMusic.play();
-                    document.removeEventListener('click', startAudio);
-                };
-                document.addEventListener('click', startAudio);
-            });
-        }
+        console.log("Attempting to play background music");
+        
+        // Check if audio is already playing
+        if (audioStarted) return;
+        
+        // For mobile, we need to try some tricks to bypass autoplay restrictions
+        const forcedPlay = () => {
+            // Try multiple play attempts with short intervals
+            const playAttempt = setInterval(() => {
+                const playPromise = bgMusic.play();
+                
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        console.log("Audio started successfully");
+                        audioStarted = true;
+                        clearInterval(playAttempt);
+                    }).catch(error => {
+                        console.log("Still trying to autoplay...");
+                        // Keep trying in the interval
+                    });
+                }
+            }, 100);
+            
+            // Stop attempts after 2 seconds
+            setTimeout(() => {
+                clearInterval(playAttempt);
+                
+                // If audio still hasn't started, add a one-time click listener as last resort
+                if (!audioStarted) {
+                    console.log("Adding click listener as last resort");
+                    const startAudio = () => {
+                        bgMusic.play().then(() => {
+                            audioStarted = true;
+                            console.log("Audio started via user interaction");
+                        }).catch(e => console.log("Failed even with interaction", e));
+                        document.removeEventListener('click', startAudio);
+                    };
+                    document.addEventListener('click', startAudio);
+                }
+            }, 2000);
+        };
+        
+        // Try to play immediately
+        bgMusic.play().then(() => {
+            console.log("Audio started immediately");
+            audioStarted = true;
+        }).catch(error => {
+            console.log("Initial autoplay prevented, trying alternative approach");
+            // If first attempt fails, try our forced approach
+            forcedPlay();
+        });
     };
-    
-    // Play the music right after "51" disappears, before stacking animation starts
-    playBackgroundMusic();
     
     // Calculate screen height
     const viewportHeight = window.innerHeight;
@@ -124,6 +161,15 @@ function createStackingRectangles() {
     
     // Show the container
     container.style.display = 'block';
+    
+    // IMPORTANT: Start playing audio immediately before any animations
+    playBackgroundMusic();
+    
+    // Create a small delay before visual animations to give audio a chance to start
+    setTimeout(() => {
+        // Start the animation sequence
+        animateStripe(0);
+    }, 200);  // Short delay to prioritize audio start
     
     // Animate stripes sequentially (top-to-bottom) with a recursive function
     function animateStripe(i) {
@@ -228,9 +274,6 @@ function createStackingRectangles() {
         textContainer.appendChild(track);
         rectangle.appendChild(textContainer);
     }
-    
-    // Start the animation sequence by calling animateStripe with the first index
-    animateStripe(0);
 }
 
 // Function to set up zoom interaction based on device type
@@ -722,7 +765,12 @@ function setupZoomInteractions(container, rectangles) {
                         lowerContent.style.opacity = '1';
                         
                         // Start typing the second paragraph
-                        startTypewriterAnimation(lowerContent, 0);
+                        startTypewriterAnimation(lowerContent, 0, () => {
+                            // Wait 5 seconds after second paragraph is done, then show image effect
+                            setTimeout(() => {
+                                showPulsingImageEffect();
+                            }, 5000);
+                        });
                     }, 1200); // Wait for rectangle to finish expanding
                 }, 500); // Short pause after first paragraph
             });
@@ -812,6 +860,140 @@ container.appendChild(textContainer);
                 }
             }, 70); // Speed of typing
         }, delay);
+    }
+    
+    // Function to show the pulsing image effect after typing finishes
+    function showPulsingImageEffect() {
+        // Create container for the image effect
+        const effectContainer = document.createElement('div');
+        effectContainer.className = 'pulsing-image-container';
+        effectContainer.style.position = 'fixed';
+        effectContainer.style.top = '0';
+        effectContainer.style.left = '0';
+        effectContainer.style.width = '100%';
+        effectContainer.style.height = '100%';
+        effectContainer.style.display = 'flex';
+        effectContainer.style.justifyContent = 'center';
+        effectContainer.style.alignItems = 'center';
+        effectContainer.style.zIndex = '1002'; // Above the divided screen
+        effectContainer.style.pointerEvents = 'none'; // Allow clicks to pass through
+        effectContainer.style.opacity = '0';
+        effectContainer.style.transition = 'opacity 1s ease';
+        
+        // Create the image element
+        const pulsingImage = document.createElement('img');
+        pulsingImage.src = 'images/realeffect.png';
+        pulsingImage.className = 'pulsing-image';
+        pulsingImage.alt = 'Celebration Effect';
+        
+        // Set initial styles for the image
+        pulsingImage.style.maxWidth = '90%';
+        pulsingImage.style.objectFit = 'contain';
+        pulsingImage.style.objectPosition = 'top center';
+        pulsingImage.style.willChange = 'transform, filter';
+        pulsingImage.style.transformOrigin = 'center center';
+        pulsingImage.style.transform = 'scale(1) rotate(0deg)';
+        pulsingImage.style.transition = 'transform 0.1s ease, filter 0.1s ease';
+        
+        // Add image to container
+        effectContainer.appendChild(pulsingImage);
+        document.body.appendChild(effectContainer);
+        
+        // Wait for image to load before showing and starting animation
+        pulsingImage.onload = () => {
+            // Apply proper scaling based on orientation
+            adjustImageToDevice(pulsingImage);
+            
+            // Show the container
+            effectContainer.style.opacity = '1';
+            
+            // Start pulsing animation
+            startPulsingAnimation(pulsingImage);
+        };
+        
+        // Handle window resize to adjust image scaling
+        window.addEventListener('resize', () => {
+            adjustImageToDevice(pulsingImage);
+        });
+    }
+    
+    // Function to adjust image size based on device orientation
+    function adjustImageToDevice(imageElement) {
+        const isLandscape = window.innerWidth > window.innerHeight;
+        const windowWidth = window.innerWidth;
+        const windowHeight = window.innerHeight;
+        
+        if (isLandscape) {
+            // For landscape orientation, make width almost the width of the screen
+            // and crop from the bottom if needed
+            imageElement.style.width = '90%';
+            imageElement.style.height = 'auto';
+            imageElement.style.maxHeight = '90vh';
+        } else {
+            // For portrait orientation, fit to width while maintaining aspect ratio
+            imageElement.style.width = '90%';
+            imageElement.style.height = 'auto';
+            imageElement.style.maxHeight = '70vh';
+        }
+        
+        // Always ensure the top portion is visible
+        imageElement.style.objectPosition = 'top center';
+    }
+    
+    // Function to animate the pulsing effect
+    function startPulsingAnimation(imageElement) {
+        let scaleDirection = 1;
+        let rotationDirection = 1;
+        let vibrancyDirection = 1;
+        let scale = 1;
+        let rotation = 0;
+        let vibrancy = 100;
+        
+        // Random factor to make the animation less predictable
+        const randomFactor = () => (Math.random() * 0.5) + 0.75;
+        
+        // Animation interval for pulsing effect
+        const pulseInterval = setInterval(() => {
+            // Scale effect (1.0 to 1.05)
+            scale += 0.005 * scaleDirection * randomFactor();
+            if (scale >= 1.05) {
+                scale = 1.05;
+                scaleDirection = -1;
+            } else if (scale <= 1) {
+                scale = 1;
+                scaleDirection = 1;
+            }
+            
+            // Rotation effect (-2 to 2 degrees)
+            rotation += 0.2 * rotationDirection * randomFactor();
+            if (rotation >= 2) {
+                rotation = 2;
+                rotationDirection = -1;
+            } else if (rotation <= -2) {
+                rotation = -2;
+                rotationDirection = 1;
+            }
+            
+            // Vibrancy effect (100% to 130%)
+            vibrancy += 2 * vibrancyDirection * randomFactor();
+            if (vibrancy >= 130) {
+                vibrancy = 130;
+                vibrancyDirection = -1;
+            } else if (vibrancy <= 100) {
+                vibrancy = 100;
+                vibrancyDirection = 1;
+            }
+            
+            // Apply the calculated effects
+            imageElement.style.transform = `scale(${scale}) rotate(${rotation}deg)`;
+            imageElement.style.filter = `saturate(${vibrancy}%) contrast(${vibrancy - 20}%)`;
+            
+        }, 50); // Update every 50ms for smooth animation
+        
+        // Optionally, stop the animation after a certain time (e.g., 30 seconds)
+        setTimeout(() => {
+            clearInterval(pulseInterval);
+        }, 30000);
     }
     
     // Set up event listeners based on device type
