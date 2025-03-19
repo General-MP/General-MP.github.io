@@ -75,11 +75,26 @@ body {
 
 .credit {
     position: absolute;
-    bottom: 8vh; /* Increase from 5vh to 8vh to move it higher and avoid taskbar */
+    bottom: 15vh; /* Increased from 8vh to 15vh to move it much higher */
     font-size: 2vmin; /* Responsive text size */
     color: rgb(255, 223, 81);
     font-family: 'Helvetica Bold', Arial, sans-serif;
     letter-spacing: -0.02em; /* Slightly tighter letter spacing */
+}
+
+/* Add media queries to position credit even higher on smaller screens */
+@media (max-width: 768px) {
+    .credit {
+        bottom: 18vh; /* Higher position on tablets */
+        font-size: 2.5vmin; /* Slightly larger for better visibility */
+    }
+}
+
+@media (max-width: 480px) {
+    .credit {
+        bottom: 22vh; /* Much higher position on mobile phones */
+        font-size: 3vmin; /* Larger text size on small screens */
+    }
 }
 
 /* Remove the container::before pseudo-element as we're using a real element now */
@@ -400,7 +415,6 @@ body {
     white-space: nowrap;
     padding: 0; /* Remove padding to prevent uneven spacing */
 }
-
 
 .marquee-content:has(.marquee-text:contains("BIRTHDAY")) {
     letter-spacing: 0.05em; /* Increase spacing for BIRTHDAY to prevent overlap */
@@ -865,21 +879,7 @@ body.zooming {
 
 /* Emphasize the gaps between characters during zoom */
 .scroll-text {
-    transition: transform 0.5s cubic-bezier(0.165, 0.84, 0.44, 1),
-                letter-spacing 0.5s cubic-bezier(0.165, 0.84, 0.44, 1),
-                opacity 0.5s ease;
-}
-
-/* 3D effect enhancements */
-.zoom-ready {
-    perspective: 1000px;
-    perspective-origin: center center;
-    transition: perspective 0.7s ease;
-}
-
-.zoom-ready .stacking-rectangle {
-    transition: transform 0.7s cubic-bezier(0.165, 0.84, 0.44, 1),
-                opacity 0.5s ease;
+    opacity: 0.5s ease;
     transform-style: preserve-3d;
 }
 
@@ -1912,7 +1912,7 @@ body.zooming {
     position: relative;
     white-space: normal;
     word-break: break-word;
-    /* No transforms or animations that would cause movement */
+    /* No text shadow, using pure color contrast instead */
 }
 
 /* Individual character spans */
@@ -1920,7 +1920,6 @@ body.zooming {
     display: inline-block;
     position: relative;
     transition: opacity 0.1s ease;
-    /* No transforms or transitions that would cause movement */
 }
 
 /* Responsive adjustments */
@@ -1928,12 +1927,30 @@ body.zooming {
     .typewriter-text {
         font-size: clamp(0.875rem, 3.5vw, 1.75rem);
     }
+    
+    .screen-section {
+        padding: 1.5rem; /* Reduced padding for medium screens */
+    }
 }
 
 @media (max-width: 480px) {
     .typewriter-text {
         font-size: clamp(0.75rem, 3vw, 1.5rem);
     }
+    
+    .screen-section {
+        padding: 1rem; /* Further reduced padding for small screens */
+    }
+}
+
+/* Transition rectangle styling */
+.transition-rectangle {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    z-index: 1;
+    transition: height 1.5s cubic-bezier(0.25, 1, 0.5, 1);
+    will-change: height;
 }
 
 /* Remove the old typewriter styles that cause movement */
@@ -1951,4 +1968,56 @@ body.zooming {
         transform: none;
         max-width: 100%;
     }
+}
+
+/* Typewriter container styling with fixed dimensions */
+.typewriter-container {
+    width: 100%;
+    max-width: 80%;
+    margin: 0 auto;
+    text-align: center;
+    position: relative;
+    display: block;
+    /* No transitions or animations that could cause movement */
+}
+
+/* Typewriter text styling - no animations except for character visibility */
+.typewriter-text {
+    font-family: 'SaoChingcha', Arial, sans-serif;
+    font-size: clamp(1rem, 4vw, 2.5rem);
+    text-align: center;
+    margin: 0;
+    padding: 0;
+    line-height: 1.5;
+    width: 100%;
+    position: relative;
+    white-space: normal;
+    word-break: break-word;
+}
+
+/* Individual character spans */
+.typewriter-text span {
+    display: inline-block;
+    position: relative;
+    transition: opacity 0.1s ease;
+}
+
+/* Expanding rectangle styling */
+.expanding-rectangle {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 0;
+    z-index: 1;
+    transition: height 1.2s cubic-bezier(0.25, 1, 0.5, 1);
+    will-change: height;
+    transform-origin: bottom center;
+}
+
+/* Make sure the lower section text sits on top of the expanding rectangle */
+.lower-section {
+    position: relative;
+    z-index: 2;
+    background-color: transparent !important;
 }

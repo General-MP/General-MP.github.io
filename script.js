@@ -5,6 +5,28 @@ function createStackingRectangles() {
     container.className = 'stacking-container';
     document.body.appendChild(container);
     
+    // Initialize audio but don't play yet - moved up for earlier initialization
+    const bgMusic = new Audio('sounds/hbdremix.mp3');
+    bgMusic.loop = true;
+    bgMusic.volume = 0.7; // Set volume to 70%
+    
+    // Pre-load the audio to reduce delay
+    bgMusic.preload = 'auto';
+    
+    // Immediately try to play audio - this should happen before any animation starts
+    const playPromise = bgMusic.play();
+    if (playPromise !== undefined) {
+        playPromise.catch(error => {
+            console.log("Autoplay prevented. User interaction required.");
+            // Add a click event listener to the document to play on first click
+            const startAudio = () => {
+                bgMusic.play();
+                document.removeEventListener('click', startAudio);
+            };
+            document.addEventListener('click', startAudio);
+        });
+    }
+    
     // Calculate screen height
     const viewportHeight = window.innerHeight;
     
@@ -50,6 +72,7 @@ function createStackingRectangles() {
             setTimeout(setupZoomInteractions, 2000, container, rectangles);
             return;
         }
+        
         setTimeout(() => {
             // CRITICAL FIX: Force removal of any interfering transitions first
             rectangles[i].style.transition = 'transform 1.2s cubic-bezier(0.25, 1, 0.5, 1)';
@@ -509,8 +532,8 @@ function setupZoomInteractions(container, rectangles) {
         const overlay = document.getElementById('zoom-overlay');
         const bgColor = overlay ? overlay.style.backgroundColor : '#000000';
         
-        // Determine contrasting text color based on background color
-        let textColor = '#FFFFFF'; // Default to white
+        // Determine contrasting text colors with INCREASED CONTRAST
+        let firstTextColor, secondTextColor;
         
         // Extract RGB components from background color
         const rgbMatch = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
@@ -519,14 +542,25 @@ function setupZoomInteractions(container, rectangles) {
             const g = parseInt(rgbMatch[2]);
             const b = parseInt(rgbMatch[3]);
             
-            // Determine which stripe color was used
+            // Determine which stripe color was used and assign high contrast colors
             if (r > 200 && g > 100 && b < 130) { // Orange background (#ff9770)
-                textColor = '#ffdb4d'; // Yellow
+                firstTextColor = '#00ffff'; // Cyan (contrasting with orange)
+                secondTextColor = '#ffff00'; // Yellow (different contrast)
             } else if (r < 130 && g > 130 && b > 200) { // Blue background (#70a6ff)
-                textColor = '#ff7eb3'; // Pink
+                firstTextColor = '#ff00ff'; // Magenta (contrasting with blue)
+                secondTextColor = '#ffff00'; // Yellow (different contrast)
             } else if (r > 200 && g > 200 && b < 130) { // Green background (#e9ff70)
-                textColor = '#4dffdb'; // Cyan
+                firstTextColor = '#ff00ff'; // Magenta (contrasting with green)
+                secondTextColor = '#00ffff'; // Cyan (different contrast)
+            } else {
+                // Default fallback with high contrast
+                firstTextColor = '#ff00ff'; // Magenta
+                secondTextColor = '#00ffff'; // Cyan
             }
+        } else {
+            // Default fallback
+            firstTextColor = '#ff00ff'; // Magenta
+            secondTextColor = '#00ffff'; // Cyan
         }
         
         // Create container for divided screen
@@ -544,7 +578,7 @@ function setupZoomInteractions(container, rectangles) {
         dividedScreen.style.opacity = '0';
         dividedScreen.style.transition = 'opacity 1s ease';
         
-        // Create sections
+        // Create upper section
         const upperSection = document.createElement('div');
         upperSection.className = 'screen-section upper-section';
         upperSection.style.flex = '1';
@@ -553,7 +587,10 @@ function setupZoomInteractions(container, rectangles) {
         upperSection.style.alignItems = 'center';
         upperSection.style.padding = '2rem';
         upperSection.style.backgroundColor = bgColor;
+        upperSection.style.position = 'relative';
+        upperSection.style.zIndex = '2';
         
+        // Create lower section
         const lowerSection = document.createElement('div');
         lowerSection.className = 'screen-section lower-section';
         lowerSection.style.flex = '1';
@@ -561,31 +598,65 @@ function setupZoomInteractions(container, rectangles) {
         lowerSection.style.justifyContent = 'center';
         lowerSection.style.alignItems = 'center';
         lowerSection.style.padding = '2rem';
-        lowerSection.style.backgroundColor = bgColor;
+        lowerSection.style.backgroundColor = 'transparent'; // Make transparent to show the rectangle
+        lowerSection.style.position = 'relative';
+        lowerSection.style.zIndex = '2';
         
-        // Prepare content
-        const text1 = "ขอให้พ่อสุขภาพร่างกายแข็งแรง มีความสุขในทุกวัน เป็นหัวหน้าครอบครัวที่น่ารักและแสนดีแบบนี้ตลอดไปนะคะ";
-        const text2 = "ขอให้คุณพ่อมีความสุข มีสุขภาพแข็งแรง อยู่กับพูห์กับคุณแม่ไปนานๆนะคับ (รอเลขนับเกิน 100 อยู่คับ) หมีพูห์ดีใจที่ได้เกิดมาเป็นลูกคุณพ่อคับ";
+        // Create the expanding rectangle (initially with height 0)
+        const expandingRect = document.createElement('div');
+        expandingRect.className = 'expanding-rectangle';
+        expandingRect.style.position = 'absolute';
+        expandingRect.style.left = '0';
+        expandingRect.style.width = '100%';
+        expandingRect.style.height = '0'; // Start with no height
+        expandingRect.style.backgroundColor = firstTextColor; // Same as first text color
+        expandingRect.style.bottom = '0'; // Positioned at the bottom
+        expandingRect.style.zIndex = '1'; // Below the text
+        expandingRect.style.transition = 'height 1.2s cubic-bezier(0.25, 1, 0.5, 1)';
+        expandingRect.style.transformOrigin = 'bottom center'; // Grow upward from bottom
         
-        // Create fixed size, pre-measured containers
-        const upperContent = createTypewriterContainer(text1, textColor);
-        const lowerContent = createTypewriterContainer(text2, textColor);
+        // Prepare text content
+        const text1 = "ขอให้พ่อสุขภาพร่างกายแข็งแรง มีความสุขในทุกวัน เป็นหัวหน้าครอบครัวที่น่ารักและแสนดีแบบนี้ตลอดไปนะคะ\n-- คุณแม่ --";
+        const text2 = "ขอให้คุณพ่อมีความสุข มีสุขภาพแข็งแรง อยู่กับพูห์กับคุณแม่ไปนานๆนะคับ (รอเลขนับเกิน 100 อยู่คับ) หมีพูห์ดีใจที่ได้เกิดมาเป็นลูกคุณพ่อคับ\n-- หมีพูห์ --";
         
+        // Create fixed size containers with proper contrasting colors
+        const upperContent = createTypewriterContainer(text1, firstTextColor);
+        const lowerContent = createTypewriterContainer(text2, secondTextColor);
+        
+        // Initially hide the lower content
+        lowerContent.style.opacity = '0';
+        
+        // Add elements to their containers
         upperSection.appendChild(upperContent);
         lowerSection.appendChild(lowerContent);
-        
         dividedScreen.appendChild(upperSection);
         dividedScreen.appendChild(lowerSection);
+        dividedScreen.appendChild(expandingRect); // Add the expanding rectangle
         
         document.body.appendChild(dividedScreen);
         
-        // Fade in the divided screen
+        // Animation sequence with proper timing
         setTimeout(() => {
+            // Fade in the main screen
             dividedScreen.style.opacity = '1';
             
-            // Start typing animations
-            startTypewriterAnimation(upperContent, 500);
-            startTypewriterAnimation(lowerContent, 4000);
+            // Start typing the first paragraph
+            startTypewriterAnimation(upperContent, 500, () => {
+                // After first paragraph completes, animate the rectangle growing downward
+                setTimeout(() => {
+                    // Expand the rectangle to 50% of the screen height (bottom half)
+                    expandingRect.style.height = '50%';
+                    
+                    // After rectangle has expanded, show and animate the second paragraph
+                    setTimeout(() => {
+                        // Fade in the lower content
+                        lowerContent.style.opacity = '1';
+                        
+                        // Start typing the second paragraph
+                        startTypewriterAnimation(lowerContent, 0);
+                    }, 1200); // Wait for rectangle to finish expanding
+                }, 500); // Short pause after first paragraph
+            });
         }, 500);
     }
     
@@ -599,46 +670,76 @@ function setupZoomInteractions(container, rectangles) {
         container.style.textAlign = 'center';
         container.style.position = 'relative';
         
-        // Create the paragraph that will contain the text
-        const paragraph = document.createElement('p');
-        paragraph.className = 'typewriter-text';
-        paragraph.style.fontFamily = "'SaoChingcha', Arial, sans-serif";
-        paragraph.style.fontSize = 'clamp(1rem, 4vw, 2.5rem)';
-        paragraph.style.color = textColor;
-        paragraph.style.textAlign = 'center';
-        paragraph.style.margin = '0';
-        paragraph.style.padding = '0';
-        paragraph.style.lineHeight = '1.5';
-        paragraph.style.width = '100%';
-        paragraph.style.position = 'relative';
+        // Create the paragraph
+        // Create a container for all paragraphs
+const textContainer = document.createElement('div');
+textContainer.className = 'typewriter-text-container';
+textContainer.style.width = '100%';
+
+// Split text by newlines
+const lines = text.split('\n');
+
+// Process each line as a separate paragraph
+lines.forEach(line => {
+    const paragraph = document.createElement('p');
+    paragraph.className = 'typewriter-text';
+    paragraph.style.fontFamily = "'SaoChingcha', Arial, sans-serif";
+    paragraph.style.fontSize = 'clamp(1rem, 4vw, 2.5rem)';
+    paragraph.style.color = textColor;
+    paragraph.style.textAlign = 'center';
+    paragraph.style.margin = '0.8em 0'; // Add margin between paragraphs
+    paragraph.style.padding = '0';
+    paragraph.style.lineHeight = '1.5';
+    paragraph.style.width = '100%';
+    paragraph.style.position = 'relative';
+    
+    // Process characters in this line
+    line.split('').forEach(char => {
+        const span = document.createElement('span');
         
-        // Pre-render all characters as spans
-        text.split('').forEach(char => {
-            const span = document.createElement('span');
+        // Special handling for spaces
+        if (char === ' ') {
+            span.innerHTML = '&nbsp;'; // Use non-breaking space
+            span.style.width = '0.5em'; // Set explicit width for spaces
+        } else {
             span.textContent = char;
-            span.style.opacity = '0';
-            span.style.display = 'inline-block';
-            span.style.position = 'relative';
-            paragraph.appendChild(span);
-        });
+        }
         
-        container.appendChild(paragraph);
+        span.style.opacity = '0';
+        span.style.display = 'inline-block';
+        span.style.position = 'relative';
+        paragraph.appendChild(span);
+    });
+    
+    textContainer.appendChild(paragraph);
+});
+
+container.appendChild(textContainer);
         return container;
     }
     
-    // Helper function to animate the typewriter text
-    function startTypewriterAnimation(container, delay) {
-        const paragraph = container.querySelector('.typewriter-text');
-        const chars = paragraph.querySelectorAll('span');
+    // Helper function to animate the typewriter text with completion callback
+    function startTypewriterAnimation(container, delay, completionCallback) {
+        const paragraphs = container.querySelectorAll('.typewriter-text');
+        const allChars = [];
+        
+        // Collect all characters across all paragraphs
+        paragraphs.forEach(paragraph => {
+            const chars = paragraph.querySelectorAll('span');
+            chars.forEach(char => allChars.push(char));
+        });
         
         setTimeout(() => {
             let index = 0;
             const interval = setInterval(() => {
-                if (index < chars.length) {
-                    chars[index].style.opacity = '1';
+                if (index < allChars.length) {
+                    allChars[index].style.opacity = '1';
                     index++;
                 } else {
                     clearInterval(interval);
+                    if (typeof completionCallback === 'function') {
+                        completionCallback();
+                    }
                 }
             }, 70); // Speed of typing
         }, delay);
